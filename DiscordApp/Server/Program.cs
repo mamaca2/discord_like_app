@@ -1,12 +1,21 @@
+using DiscordApp.Server.DB;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// Register DatabaseInitializer
+builder.Services.AddSingleton<DatabaseInitializer>();
+
 var app = builder.Build();
+
+// Run database initialization
+var databaseInitializer =
+    app.Services.GetRequiredService<DatabaseInitializer>();
+
+await databaseInitializer.InitializeAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
