@@ -1,27 +1,47 @@
 using DiscordApp.Server.DB;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-// Register DatabaseInitializer
+// PostgreSQL / EF Core
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    );
+});
+
+// Database startup check
 builder.Services.AddSingleton<DatabaseInitializer>();
+
+// Allow React frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ReactClient", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
-// Run database initialization
 var databaseInitializer =
     app.Services.GetRequiredService<DatabaseInitializer>();
 
 await databaseInitializer.InitializeAsync();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseCors("ReactClient");
 
 app.UseHttpsRedirection();
 

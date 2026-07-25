@@ -7,5 +7,7 @@ namespace DiscordApp.Server.Models
         public string Username { get; set; } = string.Empty;
 
         public string PasswordHash { get; set; } = string.Empty;
+
+        public string Image {  get; set; } = string.Empty;
     }
 }
