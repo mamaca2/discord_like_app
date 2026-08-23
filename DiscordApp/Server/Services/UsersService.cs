@@ -11,7 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace HotelListing.Api.Services;
+namespace DiscordApp.Services;
 
 public class UsersService(UserManager<User> userManager,
     IConfiguration configuration) : IUsersService
@@ -98,19 +98,28 @@ public class UsersService(UserManager<User> userManager,
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public async Task<Result<User>> FindByUsernameAndTagAsync(UserLookupDto dto)
+    public async Task<Result<UserSearchDto>> FindByUsernameAndTagAsync(UserLookupDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.UserName) || string.IsNullOrWhiteSpace(dto.Tag))
-            return Result<UserLookupDto>.BadRequest(
+            return Result<UserSearchDto>.BadRequest(
                 new Error(ErrorCodes.BadRequest, "Username and tag are both required."));
 
         var user = await userManager.Users.FirstOrDefaultAsync(
             u => u.UserName == dto.UserName && u.Tag == dto.Tag);
 
         if (user is null)
-            return Result<UserLookupDto>.NotFound(
+            return Result<UserSearchDto>.NotFound(
                 new Error(ErrorCodes.NotFound, "No user found with that username and tag."));
 
-        return Result<User>.Success(user);
+        return Result<UserSearchDto>.Success(new UserSearchDto
+        {
+            Id = user.Id,
+            UserName = user.UserName!
+        });
+    }
+
+    public Task<Result<List<UserSearchDto>>> SearchByUsernameAsync(string username)
+    {
+        throw new NotImplementedException();
     }
 }

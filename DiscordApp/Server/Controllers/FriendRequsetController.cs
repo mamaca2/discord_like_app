@@ -16,7 +16,7 @@ namespace DiscordApp.Controllers;
 [Route("api/friend-requests")]
 public class FriendRequestController(IFriendRequestService friendRequestService) : BaseApiController
 {
-    [HttpPost ("send-friend-reqsust")]
+    [HttpPost ("send-friend-request")]
     [Authorize]
     public async Task<ActionResult<FriendRequestDto>> SendFriendRequest(CreateFriendRequestDto dto)
     {

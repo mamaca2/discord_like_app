@@ -1,38 +1,27 @@
 ﻿@DiscordApp_HostAddress = http://localhost:5038
 
+### Login
+# @name login
 POST {{DiscordApp_HostAddress}}/api/users/login
 Content-Type: application/json
 
 {
-  "email": "testuser1@example.com",
+  "email": "testuser@example.com",
   "password": "Password123!"
 }
 
-###
+### Token — body IS the token, no nested field
+@authToken = {{login.response.body.*}}
 
-POST {{DiscordApp_HostAddress}}/api/users/register
-Content-Type: application/json
-
-{
-  "userName": "testuser",
-  "email": "testuser@example.com",
-  "password": "Password123!",
-  "username": "TestUser",
-  "image": "https://example.com/avatar.png",
-  "code": "1234"
-}
-
-###
-
+### Confirm it works
 GET {{DiscordApp_HostAddress}}/api/users
+Authorization: Bearer {{authToken}}
 
-###
-
-POST {{DiscordApp_HostAddress}}/api/friend-requests/send-friend-reqsust
+### Send friend request
+POST {{DiscordApp_HostAddress}}/api/friend-requests/send-friend-request
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
-  "receiverId": ""
+  "receiverId": "33a0a7d1-1993-435d-9900-b8e4fa50a606"
 }
-
-###

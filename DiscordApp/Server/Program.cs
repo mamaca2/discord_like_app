@@ -1,16 +1,18 @@
+using System.Text;
 using DiscordApp.contracts;
 using DiscordApp.Server.DB;
 using DiscordApp.Server.Models;
-using HotelListing.Api.Services;
+using DiscordApp.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-// PostgreSQL / EF Core
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(
@@ -18,11 +20,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     );
 });
 
-// Database startup check
 builder.Services.AddSingleton<DatabaseInitializer>();
 
-
-// Allow React frontend
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ReactClient", policy =>
@@ -38,7 +37,6 @@ builder.Services
     .AddIdentityCore<User>(options =>
     {
         options.User.RequireUniqueEmail = true;
-
         options.Password.RequiredLength = 8;
         options.Password.RequireDigit = true;
         options.Password.RequireUppercase = true;
@@ -48,20 +46,42 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddSignInManager();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.MapInboundClaims = false;
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"] ?? string.Empty)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IFriendRequestService, FriendRequestService>();
 
 var app = builder.Build();
 
-var databaseInitializer =
-    app.Services.GetRequiredService<DatabaseInitializer>();
-
+var databaseInitializer = app.Services.GetRequiredService<DatabaseInitializer>();
 await databaseInitializer.InitializeAsync();
 
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     string[] roles = { "User", "Admin" };
-
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))
@@ -75,11 +95,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("ReactClient");
-
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

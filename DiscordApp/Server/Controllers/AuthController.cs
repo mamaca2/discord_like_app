@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using DiscordApp.Server.Models;
-using DiscordApp.contracts;
+﻿using DiscordApp.contracts;
 using DiscordApp.DTOs;
+using DiscordApp.DTOs.UserDTOs;
+using DiscordApp.Server.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DiscordApp.controller;
 
