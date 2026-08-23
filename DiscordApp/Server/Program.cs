@@ -1,4 +1,8 @@
+using DiscordApp.contracts;
 using DiscordApp.Server.DB;
+using DiscordApp.Server.Models;
+using HotelListing.Api.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +21,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Database startup check
 builder.Services.AddSingleton<DatabaseInitializer>();
 
+
 // Allow React frontend
 builder.Services.AddCors(options =>
 {
@@ -29,12 +34,40 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services
+    .AddIdentityCore<User>(options =>
+    {
+        options.User.RequireUniqueEmail = true;
+
+        options.Password.RequiredLength = 8;
+        options.Password.RequireDigit = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireNonAlphanumeric = true;
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddSignInManager();
+builder.Services.AddScoped<IUsersService, UsersService>();
+
 var app = builder.Build();
 
 var databaseInitializer =
     app.Services.GetRequiredService<DatabaseInitializer>();
 
 await databaseInitializer.InitializeAsync();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    string[] roles = { "User", "Admin" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

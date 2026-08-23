@@ -1,7 +1,12 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
+import type { AuthMode } from '../PageTypes'
 
-function LoginRegisterPage() {
-    const [mode, setMode] = useState<'login' | 'register'>('login')
+type LoginRegisterPageProps = {
+    onLogin: (username: string) => void
+}
+
+function LoginRegisterPage({ onLogin }: LoginRegisterPageProps) {
+    const [mode, setMode] = useState<AuthMode>('login')
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
@@ -32,6 +37,12 @@ function LoginRegisterPage() {
                 setMessage('Registration failed')
                 return
             }
+
+            setMessage('Registration successful')
+
+            // After registering, switch to login
+            setMode('login')
+            setPassword('')
         } catch (error) {
             console.error(error)
             setMessage('Could not connect to server')
@@ -39,7 +50,53 @@ function LoginRegisterPage() {
     }
 
     async function login() {
-        // login API logic will go here
+        try {
+            const response = await fetch(
+                'http://localhost:5038/api/users/login',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username,
+                        passwordHash: password,
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    setMessage('Invalid username or password')
+                    return
+                }
+
+                setMessage('Login failed')
+                return
+            }
+
+            // Tell App.tsx login succeeded
+            onLogin(username)
+        } catch (error) {
+            console.error(error)
+            setMessage('Could not connect to server')
+        }
+    }
+
+    function handleSubmit(event: FormEvent<HTMLFormElement>) {
+        // Prevent browser from refreshing the page
+        event.preventDefault()
+
+        if (username.trim() === '' || password === '') {
+            setMessage('Username and password are required')
+            return
+        }
+
+        if (mode === 'login') {
+            login()
+        } else {
+            register()
+        }
     }
 
     function switchMode() {
@@ -52,7 +109,10 @@ function LoginRegisterPage() {
 
     return (
         <div>
-            <button onClick={switchMode}>
+            <button
+                type="button"
+                onClick={switchMode}
+            >
                 {mode === 'login' ? 'Register' : 'Login'}
             </button>
 
@@ -60,25 +120,25 @@ function LoginRegisterPage() {
                 {mode === 'login' ? 'Login' : 'Register'}
             </h1>
 
-            <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-            />
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                />
 
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-            />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                />
 
-            {mode === 'login' ? (
-                <button onClick={login}>Login</button>
-            ) : (
-                <button onClick={register}>Register</button>
-            )}
+                <button type="submit">
+                    {mode === 'login' ? 'Login' : 'Register'}
+                </button>
+            </form>
 
             <p>{message}</p>
         </div>

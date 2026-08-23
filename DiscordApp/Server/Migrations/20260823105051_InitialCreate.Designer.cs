@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiscordApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260823105051_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -20,40 +23,6 @@ namespace DiscordApp.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("DiscordApp.Models.FriendRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ReceiverId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("RespondedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("SenderId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReceiverId");
-
-                    b.HasIndex("SenderId");
-
-                    b.ToTable("FriendRequests");
-                });
 
             modelBuilder.Entity("DiscordApp.Server.Models.User", b =>
                 {
@@ -261,25 +230,6 @@ namespace DiscordApp.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("DiscordApp.Models.FriendRequest", b =>
-                {
-                    b.HasOne("DiscordApp.Server.Models.User", "Receiver")
-                        .WithMany()
-                        .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DiscordApp.Server.Models.User", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Receiver");
-
-                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("DiscordApp.Server.Models.User", b =>

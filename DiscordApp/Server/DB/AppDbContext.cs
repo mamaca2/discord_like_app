@@ -1,22 +1,24 @@
-﻿using DiscordApp.Server.Models;
+﻿using DiscordApp.Models;
+using DiscordApp.Server.Models;
 using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Channels;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<User>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
     {
     }
+    public DbSet<FriendRequest> FriendRequests { get; set; }
 
-    public DbSet<User> Users { get; set; }
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
 
-    //public DbSet<Server> Servers { get; set; }
-
-    //public DbSet<Channel> Channels { get; set; }
-
-    //public DbSet<Message> Messages { get; set; }
-
-    //public DbSet<ServerMember> ServerMembers { get; set; }
+        builder.Entity<User>()
+            .HasIndex(u => new { u.UserName, u.Tag })
+            .IsUnique();
+    }
 }

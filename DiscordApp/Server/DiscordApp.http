@@ -1,0 +1,38 @@
+﻿@DiscordApp_HostAddress = http://localhost:5038
+
+POST {{DiscordApp_HostAddress}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "testuser1@example.com",
+  "password": "Password123!"
+}
+
+###
+
+POST {{DiscordApp_HostAddress}}/api/users/register
+Content-Type: application/json
+
+{
+  "userName": "testuser",
+  "email": "testuser@example.com",
+  "password": "Password123!",
+  "username": "TestUser",
+  "image": "https://example.com/avatar.png",
+  "code": "1234"
+}
+
+###
+
+GET {{DiscordApp_HostAddress}}/api/users
+
+###
+
+POST {{DiscordApp_HostAddress}}/api/friend-requests/send-friend-reqsust
+Content-Type: application/json
+
+{
+  "receiverId": ""
+}
+
+###

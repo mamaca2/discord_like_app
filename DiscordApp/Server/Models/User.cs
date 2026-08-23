@@ -1,13 +1,13 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace DiscordApp.Server.Models
 {
-    public class User
+    public class User : IdentityUser
     {
-        public int Id { get; set; }
+        public string? Image {  get; set; } = string.Empty;
 
-        public string Username { get; set; } = string.Empty;
+        public string Tag {  get; set; } = string.Empty;
 
-        public string PasswordHash { get; set; } = string.Empty;
-
-        public string Image {  get; set; } = string.Empty;
+        public IList<User> friend { get; set; } = [];
     }
 }
