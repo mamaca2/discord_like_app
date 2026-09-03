@@ -20,6 +20,5 @@ public class FriendRequest
 public enum FriendRequestStatus
 {
     Pending,
-    Accepted,
-    Declined
+    Accepted
 }

@@ -8,6 +8,6 @@ namespace DiscordApp.Server.Models
 
         public string Tag {  get; set; } = string.Empty;
 
-        public IList<User> friend { get; set; } = [];
+        public IList<User> friends { get; set; } = [];
     }
 }
