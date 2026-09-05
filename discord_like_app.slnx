@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="DiscordApp/Server/DiscordApp.csproj" />
+  <Project Path="DiscordApp.Api/DiscordApp.Api.csproj" />
+  <Project Path="DiscordApp.Application/DiscordApp.Application.csproj" />
+  <Project Path="DiscordApp.Domain/DiscordApp.Domain.csproj" />
+  <Project Path="DiscordApp.Infrastructure/DiscordApp.Infrastructure.csproj" />
 </Solution>
