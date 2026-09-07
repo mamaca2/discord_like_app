@@ -128,10 +128,11 @@ public class FriendRequestService: IFriendRequestService
                 new Error(ErrorCodes.BadRequest, "You cannot send a friend request to yourself."));
 
         var receiver = await _userManager.FindByIdAsync(dto.ReceiverId);
+        Console.WriteLine($"receiver is null: {receiver is null}");
         if (receiver is null)
             return Result<FriendRequestDto>.NotFound(
                 new Error(ErrorCodes.NotFound, "Receiver not found."));
-
+        Console.WriteLine("------------- MOIDAAAAA!!!!!!!!! -------------------");
         // Check bi-directional relationship status
         var existingRelationship = await _appDbContext.FriendRequests
             .FirstOrDefaultAsync(fr =>

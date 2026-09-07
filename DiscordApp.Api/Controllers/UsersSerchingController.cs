@@ -1,5 +1,5 @@
 ﻿using DiscordApp.Application.Common.Paging;
-using DiscordApp.Application.DTOs.UserDTOs;
+using DiscordApp.Application.DTOs.UserFindingDTOs;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.controller;
 using Microsoft.AspNetCore.Authorization;

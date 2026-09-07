@@ -1,13 +1,34 @@
 ﻿@DiscordApp_HostAddress = http://localhost:5187
 
-### 1. Register User A
-POST {{DiscordApp_HostAddress}}/api/users/register
+### 1a. Step 1: Start Registration (Submit Email & Password, trigger code)
+POST {{DiscordApp_HostAddress}}/api/auth/start-registration
 Content-Type: application/json
 
 {
-  "email": "testuser2@example.com",
-  "password": "Password123!",
-  "username": "testname1",
+  "email": "giomamacashvili123@gmail.com",
+  "password": "Password123!"
+}
+
+###
+
+### 1b. Step 2: Verify Code
+POST {{DiscordApp_HostAddress}}/api/auth/verify-code
+Content-Type: application/json
+
+{
+  "email": "giomamacashvili123@gmail.com",
+  "code": "396731"
+}
+
+###
+
+### 1c. Step 3: Complete Registration (Provide Username)
+POST {{DiscordApp_HostAddress}}/api/auth/complete-registration
+Content-Type: application/json
+
+{
+  "email": "giomamacashvili123@gmail.com",
+  "username": "gio",
   "role": "User"
 }
 
@@ -15,17 +36,17 @@ Content-Type: application/json
 
 ### 2. Login User A
 # @name login
-POST {{DiscordApp_HostAddress}}/api/users/login
+POST {{DiscordApp_HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "testuser@example.com",
+  "email": "giomamacashvili123@gmail.com",
   "password": "Password123!"
 }
 
 ###
 
-@authToken ={{login.response.body.*}}
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjYwYmJjNzA2LWZmYzgtNGQ4Zi1hZmVhLTRlY2JiOWEwZGFkNSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Imdpb21hbWFjYXNodmlsaTEyM0BnbWFpbC5jb20iLCJqdGkiOiI5ZDBlNjUwMy1hZDUwLTRiYzUtYWUyNy01NDM1NTkwZDYwZjYiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJVc2VyIiwiZXhwIjoxNzg4Nzk2ODA5LCJpc3MiOiJEaXNjb3JkQXBwIiwiYXVkIjoiRGlzY29yZEFwcFVzZXJzIn0.Cnb8mluFn_Emd2YhkM-qgdIXC2jPednhtzqgXtupNyQ
 
 ### 3. Search Users by Name Prefix (Paginated)
 GET {{DiscordApp_HostAddress}}/api/users/search?query=test&pageNumber=1&pageSize=10
@@ -44,9 +65,11 @@ GET {{DiscordApp_HostAddress}}/api/users/search?query=testname1%2300&pageNumber=
 Authorization: Bearer {{authToken}}
 
 ###
+
 ### Test Invalid Search Query (Multiple Hash Characters)
 GET {{DiscordApp_HostAddress}}/api/users/search?query=testnam%23%23e1%2300&pageNumber=1&pageSize=10
 Authorization: Bearer {{authToken}}
+
 ###
 
 ### 6. Send Friend Request
@@ -55,7 +78,7 @@ Content-Type: application/json
 Authorization: Bearer {{authToken}}
 
 {
-  "receiverId": "a5772d2e-d62e-48be-9c34-3ee3112c127b"
+  "receiverId": "60bbc706-ffc8-4d8f-afea-4ecbb9a0dad5"
 }
 
 ###

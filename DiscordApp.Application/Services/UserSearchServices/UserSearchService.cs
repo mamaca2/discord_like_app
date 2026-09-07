@@ -1,5 +1,5 @@
 ﻿using DiscordApp.Application.Common.Paging;
-using DiscordApp.Application.DTOs.UserDTOs;
+using DiscordApp.Application.DTOs.UserFindingDTOs;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Results;
 using DiscordApp.Domain.Models;
@@ -46,7 +46,7 @@ public class UserSearchService(UserManager<User> userManager) : IUserSearchServi
         {
             baseQuery = userManager.Users
                 .AsNoTracking()
-                .Where(u => u.DisplayName != null && EF.Functions.ILike(u.DisplayName, $"%{parsed.Username}%"))   // ← DisplayName
+                .Where(u => u.DisplayName != null && EF.Functions.ILike(u.DisplayName, $"%{parsed.Username}%"))
                 .OrderBy(u => u.DisplayName)
                 .ThenBy(u => u.Tag);
         }

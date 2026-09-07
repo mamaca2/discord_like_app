@@ -1,26 +1,39 @@
 ﻿using DiscordApp.Application.contracts;
 using DiscordApp.Application.DTOs;
-using Microsoft.AspNetCore.Authorization;
+using DiscordApp.Application.DTOs.RegistrationDTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace DiscordApp.controller;
 
 [ApiController]
-[Route("api/users")]
-public class AuthController(IUsersService usersService) : BaseApiController
+[Route("api/auth")]
+public class AuthenticationController(IAuthenticationService authService) : BaseApiController
 {
-    [HttpPost("register")]
-    public async Task<ActionResult<RegisteredUserDto>> Register(RegisterUserDto registerUserDto)
+    [HttpPost("start-registration")]
+    public async Task<IActionResult> StartRegistration(StartRegistrationDto dto)
     {
-        var result = await usersService.RegisterUserAsync(registerUserDto);
+        var result = await authService.StartRegistrationAsync(dto);
+        return ToActionResult(result);
+    }
+
+    [HttpPost("verify-code")]
+    public async Task<IActionResult> VerifyCode(VerifyCodeDto dto)
+    {
+        var result = await authService.VerifyCodeAsync(dto);
+        return ToActionResult(result);
+    }
+
+    [HttpPost("complete-registration")]
+    public async Task<ActionResult<RegisteredUserDto>> CompleteRegistration(CompleteRegistrationDto dto)
+    {
+        var result = await authService.CompleteRegistrationAsync(dto);
         return ToActionResult(result);
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<string>> Login(LoginUserDto loginUserDto)
     {
-        var result = await usersService.LoginAsync(loginUserDto);
+        var result = await authService.LoginAsync(loginUserDto);
         return ToActionResult(result);
     }
 }

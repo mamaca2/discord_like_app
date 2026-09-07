@@ -1,6 +1,6 @@
 ﻿using DiscordApp.Application.Common.Paging;
 
-namespace DiscordApp.Application.DTOs.UserDTOs;
+namespace DiscordApp.Application.DTOs.UserFindingDTOs;
 
 public class UserSearchQueryParams : PageParams
 {

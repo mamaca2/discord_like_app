@@ -1,4 +1,4 @@
-﻿namespace DiscordApp.Application.DTOs.UserDTOs;
+﻿namespace DiscordApp.Application.DTOs.UserFindingDTOs;
 
 public class UserLookupDto
 {

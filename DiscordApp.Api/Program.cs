@@ -1,16 +1,20 @@
-using System.Text;
 using DiscordApp.Application.contracts;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Services;
+using DiscordApp.Application.Services.AuthenticationServices;
 using DiscordApp.Application.Services.UserSearchServices;
 using DiscordApp.Application.Validators;
 using DiscordApp.Domain.Models;
 using DiscordApp.Infrastructure.DB;
+using DiscordApp.Infrastructure.Email;
 using DiscordApp.Server.DB;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +63,9 @@ builder.Services
     .AddIdentityCore<User>(options =>
     {
         options.User.RequireUniqueEmail = true;
+        options.User.AllowedUserNameCharacters =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+#";
+        options.SignIn.RequireConfirmedEmail = true;
         options.Password.RequiredLength = 8;
         options.Password.RequireDigit = true;
         options.Password.RequireUppercase = true;
@@ -68,9 +75,6 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddSignInManager();
-
-// Register CustomUserValidator to extend/override identity validation logic
-builder.Services.AddScoped<IUserValidator<User>, CustomUserValidator>();
 
 // =============================
 // JWT Authentication
@@ -137,12 +141,20 @@ builder.Services
 // =============================
 // Application Services
 // =============================
-builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IFriendRequestService, FriendRequestService>();
 builder.Services.AddScoped<IFriendsService, FriendsService>();
 builder.Services.AddScoped<IUserSearchService, UserSearchService>();
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
 var app = builder.Build();
+
+// Enable Developer Exception Page in local dev to see actual exception messages
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    app.MapOpenApi();
+}
 
 // =============================
 // Database Initialization
@@ -177,14 +189,10 @@ using (var scope = app.Services.CreateScope())
 // =============================
 // HTTP Pipeline
 // =============================
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
 app.UseCors("ReactClient");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();

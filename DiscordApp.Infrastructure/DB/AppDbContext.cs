@@ -13,6 +13,7 @@ public class AppDbContext : IdentityDbContext<User>, IAppDbContext
     }
 
     public DbSet<FriendRequest> FriendRequests { get; set; }
+    public DbSet<PendingRegistration> PendingRegistrations { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
