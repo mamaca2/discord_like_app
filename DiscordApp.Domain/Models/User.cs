@@ -6,4 +6,5 @@ public class User : IdentityUser
 {
     public string? Image { get; set; } = string.Empty;
     public string Tag { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
 }

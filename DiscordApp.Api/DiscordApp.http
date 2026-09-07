@@ -19,7 +19,7 @@ POST {{DiscordApp_HostAddress}}/api/users/login
 Content-Type: application/json
 
 {
-  "email": "testuser1@example.com",
+  "email": "testuser@example.com",
   "password": "Password123!"
 }
 
@@ -44,14 +44,12 @@ GET {{DiscordApp_HostAddress}}/api/users/search?query=testname1%2300&pageNumber=
 Authorization: Bearer {{authToken}}
 
 ###
-
-### 6. Find Exact User by Username and Tag
-GET {{DiscordApp_HostAddress}}/api/users/find-by-tag?userName=testname1&tag=0001
+### Test Invalid Search Query (Multiple Hash Characters)
+GET {{DiscordApp_HostAddress}}/api/users/search?query=testnam%23%23e1%2300&pageNumber=1&pageSize=10
 Authorization: Bearer {{authToken}}
-
 ###
 
-### 7. Send Friend Request
+### 6. Send Friend Request
 POST {{DiscordApp_HostAddress}}/api/friend-requests/send
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
@@ -62,37 +60,37 @@ Authorization: Bearer {{authToken}}
 
 ###
 
-### 8. Get Incoming Pending Requests
+### 7. Get Incoming Pending Requests
 GET {{DiscordApp_HostAddress}}/api/friend-requests/incoming
 Authorization: Bearer {{authToken}}
 
 ###
 
-### 9. Get Outgoing Pending Requests
+### 8. Get Outgoing Pending Requests
 GET {{DiscordApp_HostAddress}}/api/friend-requests/outgoing
 Authorization: Bearer {{authToken}}
 
 ###
 
-### 10. Accept Friend Request
+### 9. Accept Friend Request
 POST {{DiscordApp_HostAddress}}/api/friend-requests/1/accept
 Authorization: Bearer {{authToken}}
 
 ###
 
-### 11. Decline/Cancel Friend Request
+### 10. Decline/Cancel Friend Request
 DELETE {{DiscordApp_HostAddress}}/api/friend-requests/2/decline
 Authorization: Bearer {{authToken}}
 
 ###
 
-### 12. Get Friends List
+### 11. Get Friends List
 GET {{DiscordApp_HostAddress}}/api/friends
 Authorization: Bearer {{authToken}}
 
 ###
 
-### 13. Unfriend User
+### 12. Unfriend User
 DELETE {{DiscordApp_HostAddress}}/api/friends/31809e2c-ecc5-4b87-96de-3e48765d25d4
 Authorization: Bearer {{authToken}}
 

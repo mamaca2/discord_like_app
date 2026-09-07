@@ -2,7 +2,6 @@
 using DiscordApp.Application.DTOs.UserDTOs;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Results;
-using DiscordApp.Domain.constants;
 using DiscordApp.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,46 +13,48 @@ public class UserSearchService(UserManager<User> userManager) : IUserSearchServi
     public async Task<Result<PagedList<UserSearchDto>>> SearchByUsernameAsync(
         UserSearchQueryParams queryParams)
     {
-        if (string.IsNullOrWhiteSpace(queryParams.Query))
+        var validationResult = UserSearchQueryValidator.ParseAndValidate(queryParams.Query);
+        if (!validationResult.IsSuccess)
+        {
+            return Result<PagedList<UserSearchDto>>.Failure(validationResult.Errors!);
+        }
+
+        var parsed = validationResult.Value!;
+
+        if (string.IsNullOrEmpty(parsed.Username) && !parsed.HasTag)
         {
             return Result<PagedList<UserSearchDto>>.Success(
                 new PagedList<UserSearchDto>([], 0, queryParams.PageNumber, queryParams.PageSize));
         }
 
-        var trimmedQuery = queryParams.Query.Trim();
         IQueryable<User> baseQuery;
 
-        if (trimmedQuery.Contains('#'))
+        if (parsed.HasTag)
         {
-            var parts = trimmedQuery.Split('#', 2);
-            var searchName = parts[0];
-            var searchTag = parts[1];
+            baseQuery = userManager.Users
+                .AsNoTracking()
+                .Where(u => u.DisplayName == parsed.Username && u.Tag != null);
 
-            if (string.IsNullOrEmpty(searchTag))
+            if (!string.IsNullOrEmpty(parsed.Tag))
             {
-                baseQuery = userManager.Users
-                    .Where(u => u.UserName == searchName && u.Tag != null)
-                    .OrderBy(u => u.Tag);
+                baseQuery = baseQuery.Where(u => u.Tag!.StartsWith(parsed.Tag));
             }
-            else
-            {
-                baseQuery = userManager.Users
-                    .Where(u => u.UserName == searchName && u.Tag != null && u.Tag.StartsWith(searchTag))
-                    .OrderBy(u => u.Tag);
-            }
+
+            baseQuery = baseQuery.OrderBy(u => u.Tag);
         }
         else
         {
             baseQuery = userManager.Users
-                .Where(u => u.UserName != null && u.UserName.ToLower().StartsWith(trimmedQuery.ToLower()))
-                .OrderBy(u => u.UserName)
+                .AsNoTracking()
+                .Where(u => u.DisplayName != null && EF.Functions.ILike(u.DisplayName, $"%{parsed.Username}%"))   // ← DisplayName
+                .OrderBy(u => u.DisplayName)
                 .ThenBy(u => u.Tag);
         }
 
         var projectedQuery = baseQuery.Select(u => new UserSearchDto
         {
             Id = u.Id,
-            UserName = u.UserName!,
+            UserName = u.DisplayName!,
             Tag = u.Tag!,
             Image = u.Image
         });

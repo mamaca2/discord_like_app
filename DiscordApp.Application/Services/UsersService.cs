@@ -40,7 +40,8 @@ public class UsersService(
         var user = new User
         {
             Email = dto.Email,
-            UserName = dto.Username,
+            UserName = $"{dto.Username}#{generatedTag}",
+            DisplayName = dto.Username,
             Tag = generatedTag,
             Image = "default.png"
         };

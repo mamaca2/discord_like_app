@@ -3,6 +3,7 @@ using DiscordApp.Application.contracts;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Services;
 using DiscordApp.Application.Services.UserSearchServices;
+using DiscordApp.Application.Validators;
 using DiscordApp.Domain.Models;
 using DiscordApp.Infrastructure.DB;
 using DiscordApp.Server.DB;
@@ -67,6 +68,9 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddSignInManager();
+
+// Register CustomUserValidator to extend/override identity validation logic
+builder.Services.AddScoped<IUserValidator<User>, CustomUserValidator>();
 
 // =============================
 // JWT Authentication
@@ -183,5 +187,4 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
