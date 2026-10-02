@@ -6,6 +6,7 @@ using DiscordApp.Application.DTOs;
 using DiscordApp.Application.DTOs.RegistrationDTOs;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Results;
+using DiscordApp.Domain.Common;
 using DiscordApp.Domain.constants;
 using DiscordApp.Domain.Models;
 using Microsoft.AspNetCore.Identity;

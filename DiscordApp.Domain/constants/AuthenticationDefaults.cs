@@ -1,4 +1,5 @@
 ﻿namespace DiscordApp.Domain.constants;
+
 public class AuthenticationDefaults
 {
     public const string BasicScheme = "Basic";

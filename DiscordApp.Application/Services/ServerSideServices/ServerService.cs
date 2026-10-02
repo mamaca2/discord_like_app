@@ -1,6 +1,7 @@
 using DiscordApp.Application.DTOs.ServerDTOs;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Results;
+using DiscordApp.Domain.Common;
 using DiscordApp.Domain.Enums;
 using DiscordApp.Domain.Models;
 
@@ -45,5 +46,25 @@ public class ServerService(IAppDbContext dbContext) : IServerService
         };
 
         return Result<ServerDto>.Success(response);
+    }
+
+    public Task<Result> DeleteServerAsync(string serverId, string currentUserId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result<ServerDto>> GetServerAsync(string serverId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result<List<ServerDto>>> GetUserServersAsync(string userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result<ServerDto>> UpdateServerAsync(string serverId, string currentUserId, UpdateServerDto dto)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DiscordApp.Application.Results;
+using DiscordApp.Domain.Common;
 using DiscordApp.Domain.constants;
 
 namespace DiscordApp.Application.Services.UserSearchServices;

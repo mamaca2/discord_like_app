@@ -16,7 +16,7 @@ public class UserSearchService(UserManager<User> userManager) : IUserSearchServi
         var validationResult = UserSearchQueryValidator.ParseAndValidate(queryParams.Query);
         if (!validationResult.IsSuccess)
         {
-            return Result<PagedList<UserSearchDto>>.Failure(validationResult.Errors!);
+            return Result<PagedList<UserSearchDto>>.BadRequest(validationResult.Errors!);
         }
 
         var parsed = validationResult.Value!;

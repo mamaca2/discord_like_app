@@ -12,5 +12,6 @@ public interface IAppDbContext
     DbSet<PendingRegistration> PendingRegistrations { get; set; }
     DbSet<ServerInfo> ServerInfos { get; }
     DbSet<ServerMember> ServerMembers { get; }
+    DbSet<ServerInvite> ServerInvites { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

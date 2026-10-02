@@ -9,8 +9,6 @@ public interface IServerInviteService
 {
     Task<Result<ServerInviteDto>> CreateInviteAsync(string serverId, string creatorUserId, CreateInviteDto dto);
 
-    Task<Result<ServerPreviewDto>> GetInviteDetailsAsync(string code);
-
     Task<Result<ServerDto>> AcceptInviteAsync(string code, string userId);
 
     Task<Result<List<ServerInviteDto>>> GetServerInvitesAsync(string serverId, string userId);

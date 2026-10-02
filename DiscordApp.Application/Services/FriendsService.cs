@@ -2,6 +2,7 @@
 using DiscordApp.Application.DTOs.FriendDTOs;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Results;
+using DiscordApp.Domain.Common;
 using DiscordApp.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;

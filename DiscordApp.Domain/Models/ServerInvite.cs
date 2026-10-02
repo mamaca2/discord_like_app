@@ -5,7 +5,7 @@ namespace DiscordApp.Domain.Models;
 public class ServerInvite
 {
     public string Code { get; set; } = Guid.NewGuid().ToString()[..8];
-    
+
     public string ServerId { get; set; } = null!;
     public ServerInfo Server { get; set; } = null!;
 
@@ -18,7 +18,7 @@ public class ServerInvite
     public int MaxUses { get; set; } = 0;
     public int Uses { get; set; } = 0;
 
-    public bool IsExpired => 
-        (ExpiresAt.HasValue && DateTime.UtcNow > ExpiresAt.Value) || 
+    public bool IsExpired =>
+        (ExpiresAt.HasValue && DateTime.UtcNow > ExpiresAt.Value) ||
         (MaxUses > 0 && Uses >= MaxUses);
 }

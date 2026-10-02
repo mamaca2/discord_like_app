@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using DiscordApp.Domain.Common;
 
 namespace DiscordApp.Application.Results;
 
@@ -11,12 +12,6 @@ public enum ResultType
     Unauthorized,
     Forbidden,
     Failure
-}
-
-public readonly record struct Error(string Code, string Description)
-{
-    public static readonly Error None = new("", "");
-    public bool IsNone => string.IsNullOrWhiteSpace(Code);
 }
 
 public readonly record struct Result
@@ -51,7 +46,7 @@ public readonly record struct Result<T>
         => (IsSuccess, Type, Value, Errors) = (isSuccess, type, value, errors);
 
     public static Result<T> Success(T value) => new(true, ResultType.Success, value, []);
-    public static Result<T> Failure(params Error[] errors) => new(false, ResultType.Failure, default, errors);
+    public static Result<T> Failure(Domain.Common.Error notMember, params Error[] errors) => new(false, ResultType.Failure, default, errors);
     public static Result<T> NotFound(params Error[] errors) => new(false, ResultType.NotFound, default, errors);
     public static Result<T> BadRequest(params Error[] errors) => new(false, ResultType.BadRequest, default, errors);
     public static Result<T> Unauthorized(params Error[] errors) => new(false, ResultType.Unauthorized, default, errors);

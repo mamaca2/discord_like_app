@@ -22,4 +22,5 @@ public class ServersController(IServerService serverService) : BaseApiController
         var result = await serverService.CreateServerAsync(userId, createServerDto);
         return ToActionResult(result);
     }
+    
 }

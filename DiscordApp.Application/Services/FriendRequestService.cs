@@ -3,6 +3,7 @@ using DiscordApp.Application.DTOs.FriendRequestDTO;
 using DiscordApp.Application.DTOs.FriendRequestDTOs;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Results;
+using DiscordApp.Domain.Common;
 using DiscordApp.Domain.constants;
 using DiscordApp.Domain.Enums;
 using DiscordApp.Domain.Models;
