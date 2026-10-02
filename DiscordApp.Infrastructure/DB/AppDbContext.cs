@@ -14,6 +14,9 @@ public class AppDbContext : IdentityDbContext<User>, IAppDbContext
 
     public DbSet<FriendRequest> FriendRequests { get; set; }
     public DbSet<PendingRegistration> PendingRegistrations { get; set; } = null!;
+    public DbSet<ServerInfo> ServerInfos => throw new NotImplementedException();
+    public DbSet<ServerMember> ServerMembers {get; set;}
+
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

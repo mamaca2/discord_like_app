@@ -10,5 +10,7 @@ public interface IAppDbContext
     DbSet<FriendRequest> FriendRequests { get; }
     DbSet<User> Users { get; }
     DbSet<PendingRegistration> PendingRegistrations { get; set; }
+    DbSet<ServerInfo> ServerInfos { get; }
+    DbSet<ServerMember> ServerMembers { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
