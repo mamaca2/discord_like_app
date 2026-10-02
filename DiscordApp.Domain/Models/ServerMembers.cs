@@ -1,10 +1,15 @@
-using System;
-using System.Text.Json.Serialization.Metadata;
+using DiscordApp.Domain.Enums;
 
 namespace DiscordApp.Domain.Models;
 
-public class ServerMembers
+public class ServerMember
 {
-    public int ServerId{get; set;}
-    public int UserId{get; set;}
+    public string ServerId { get; set; } = string.Empty;
+    public Server Server { get; set; } = null!;
+
+    public string UserId { get; set; } = string.Empty;
+    public User User { get; set; } = null!;
+
+    public ServerRole Role { get; set; } = ServerRole.Member;
+    public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 }
