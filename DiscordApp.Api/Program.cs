@@ -1,3 +1,6 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using DiscordApp.Application.contracts;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Services;
@@ -13,9 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // =============================
@@ -67,7 +68,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// Application sees only IAppDbContext
+// Application layer interacts via IAppDbContext abstraction
 builder.Services.AddScoped<IAppDbContext>(
     sp => sp.GetRequiredService<AppDbContext>());
 
@@ -77,7 +78,7 @@ builder.Services.AddScoped<IAppDbContext>(
 builder.Services.AddSingleton<DatabaseInitializer>();
 
 // =============================
-// CORS
+// CORS Configuration
 // =============================
 builder.Services.AddCors(options =>
 {
@@ -91,7 +92,7 @@ builder.Services.AddCors(options =>
 });
 
 // =============================
-// ASP.NET Identity
+// ASP.NET Core Identity
 // =============================
 builder.Services
     .AddIdentityCore<User>(options =>
@@ -140,9 +141,12 @@ builder.Services
                 Console.WriteLine("=================================");
                 Console.WriteLine("JWT VALIDATED");
 
-                foreach (var claim in context.Principal!.Claims)
+                if (context.Principal?.Claims != null)
                 {
-                    Console.WriteLine($"CLAIM: {claim.Type} = {claim.Value}");
+                    foreach (var claim in context.Principal.Claims)
+                    {
+                        Console.WriteLine($"CLAIM: {claim.Type} = {claim.Value}");
+                    }
                 }
 
                 Console.WriteLine("=================================");
@@ -180,11 +184,13 @@ builder.Services.AddScoped<IFriendRequestService, FriendRequestService>();
 builder.Services.AddScoped<IFriendsService, FriendsService>();
 builder.Services.AddScoped<IUserSearchService, UserSearchService>();
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<IServerService, ServerService>();
+builder.Services.AddScoped<IServerInviteService, ServerInviteService>();
 
 var app = builder.Build();
 
 // =============================
-// Development-only middleware
+// Development Middleware (Swagger on Root)
 // =============================
 if (app.Environment.IsDevelopment())
 {
@@ -193,7 +199,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "DiscordApp API V1");
-        options.RoutePrefix = "swagger";
+        options.RoutePrefix = string.Empty; // Serves Swagger UI at http://localhost:<port>/
     });
 }
 
@@ -216,9 +222,9 @@ using (var scope = app.Services.CreateScope())
     var roleManager =
         scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    string[] roles = { "User", "Admin" };
+    string[] defaultRoles = { "User", "Admin" };
 
-    foreach (var role in roles)
+    foreach (var role in defaultRoles)
     {
         if (!await roleManager.RoleExistsAsync(role))
         {
@@ -228,10 +234,15 @@ using (var scope = app.Services.CreateScope())
 }
 
 // =============================
-// HTTP Pipeline
+// HTTP Pipeline Configuration
 // =============================
 app.UseCors("ReactClient");
-app.UseHttpsRedirection();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
