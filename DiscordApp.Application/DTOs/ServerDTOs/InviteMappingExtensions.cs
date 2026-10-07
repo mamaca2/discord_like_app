@@ -17,7 +17,6 @@ public static class InviteMappingExtensions
             ExpiresAt = invite.ExpiresAt,
             MaxUses = invite.MaxUses,
             Uses = invite.Uses,
-            IsExpired = invite.IsExpired
         };
     }
 }

@@ -1,24 +1,18 @@
-using System;
+using DiscordApp.Domain.Models;
 
 namespace DiscordApp.Domain.Models;
 
 public class ServerInvite
 {
-    public string Code { get; set; } = Guid.NewGuid().ToString()[..8];
+    public string Code { get; set; } = string.Empty;
+    public string ServerId { get; set; } = string.Empty; 
+    public ServerInfo? Server { get; set; }
 
-    public string ServerId { get; set; } = null!;
-    public ServerInfo Server { get; set; } = null!;
+    public string CreatorId { get; set; } = string.Empty;
+    public User? Creator { get; set; }
 
-    public string CreatorId { get; set; } = null!;
-    public User Creator { get; set; } = null!;
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
     public DateTime? ExpiresAt { get; set; }
-
-    public int MaxUses { get; set; } = 0;
-    public int Uses { get; set; } = 0;
-
-    public bool IsExpired =>
-        (ExpiresAt.HasValue && DateTime.UtcNow > ExpiresAt.Value) ||
-        (MaxUses > 0 && Uses >= MaxUses);
+    public int MaxUses { get; set; }
+    public int Uses { get; set; }
 }

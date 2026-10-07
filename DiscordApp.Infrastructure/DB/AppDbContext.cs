@@ -14,7 +14,7 @@ public class AppDbContext : IdentityDbContext<User>, IAppDbContext
 
     public DbSet<FriendRequest> FriendRequests { get; set; }
     public DbSet<PendingRegistration> PendingRegistrations { get; set; } = null!;
-    public DbSet<ServerInfo> ServerInfos => throw new NotImplementedException();
+    public DbSet<ServerInfo> ServerInfos { get; set; }
     public DbSet<ServerMember> ServerMembers {get; set;}
     public DbSet<ServerInvite> ServerInvites {get; set;}
 
@@ -22,8 +22,12 @@ public class AppDbContext : IdentityDbContext<User>, IAppDbContext
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<User>()
-            .HasIndex(u => new { u.UserName, u.Tag })
-            .IsUnique();
+        builder.Entity<ServerMember>()
+            .HasKey(sm => new { sm.ServerInfoId, sm.UserId });
+
+        builder.Entity<ServerMember>()
+            .HasOne(sm => sm.Server)
+            .WithMany(s => s.Members)
+            .HasForeignKey(sm => sm.ServerInfoId);
     }
 }
