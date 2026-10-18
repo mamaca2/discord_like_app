@@ -14,7 +14,7 @@ public class ServerInviteService(IAppDbContext dbContext) : IServerInviteService
 {
     public async Task<Result<ServerInviteDto>> CreateInviteAsync
     (
-        string serverId, 
+        int serverId, 
         string creatorUserId, 
         CreateInviteDto dto
     )
@@ -99,8 +99,7 @@ public class ServerInviteService(IAppDbContext dbContext) : IServerInviteService
         });
     }
 
-    
-    public Task<Result<List<ServerInviteDto>>> GetServerInvitesAsync(string serverId, string userId)
+    public Task<Result<List<ServerInviteDto>>> GetServerInvitesAsync(int serverId, string userId)
     {
         throw new NotImplementedException();
     }

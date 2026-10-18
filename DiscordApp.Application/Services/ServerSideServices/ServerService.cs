@@ -2,8 +2,10 @@ using DiscordApp.Application.DTOs.ServerDTOs;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Results;
 using DiscordApp.Domain.Common;
+using DiscordApp.Domain.constants;
 using DiscordApp.Domain.Enums;
 using DiscordApp.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DiscordApp.Application.Services;
 
@@ -48,14 +50,27 @@ public class ServerService(IAppDbContext dbContext) : IServerService
         return Result<ServerDto>.Success(response);
     }
 
-    public Task<Result> DeleteServerAsync(string serverId, string currentUserId)
+    public async Task<Result> DeleteServerAsync(int serverId, string ownerId)
     {
-        throw new NotImplementedException();
-    }
+        var server = await dbContext.ServerInfos
+            .FirstOrDefaultAsync(s => s.Id == serverId);
 
-    public Task<Result<ServerDto>> GetServerAsync(string serverId)
-    {
-        throw new NotImplementedException();
+        if (server is null)
+        {
+            return Result.NotFound(
+                new Error(ErrorCodes.NotFound, "Server not found."));
+        }
+
+        if (server.OwnerId != ownerId)
+        {
+            return Result.BadRequest(
+                new Error(ErrorCodes.BadRequest, "Only the server owner can delete this server."));
+        }
+
+        dbContext.ServerInfos.Remove(server);
+        await dbContext.SaveChangesAsync();
+
+        return Result.Success();
     }
 
     public Task<Result<List<ServerDto>>> GetUserServersAsync(string userId)

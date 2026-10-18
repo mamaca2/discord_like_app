@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiscordApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260904130845_AddUserTokenCache")]
-    partial class AddUserTokenCache
+    [Migration("20261018182437_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,6 +59,126 @@ namespace DiscordApp.Infrastructure.Migrations
                     b.ToTable("FriendRequests");
                 });
 
+            modelBuilder.Entity("DiscordApp.Domain.Models.PendingRegistration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PendingRegistrations");
+                });
+
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServerInfos");
+                });
+
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerInvite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MaxUses")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ServerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Uses")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("ServerId");
+
+                    b.ToTable("ServerInvites");
+                });
+
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerMember", b =>
+                {
+                    b.Property<int>("ServerInfoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ServerInfoId", "UserId");
+
+                    b.ToTable("ServerMembers");
+                });
+
             modelBuilder.Entity("DiscordApp.Domain.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -71,7 +191,8 @@ namespace DiscordApp.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
-                    b.Property<string>("CurrentToken")
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
@@ -114,9 +235,6 @@ namespace DiscordApp.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("TokenExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -132,9 +250,6 @@ namespace DiscordApp.Infrastructure.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
-
-                    b.HasIndex("UserName", "Tag")
-                        .IsUnique();
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -290,6 +405,36 @@ namespace DiscordApp.Infrastructure.Migrations
                     b.Navigation("Sender");
                 });
 
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerInvite", b =>
+                {
+                    b.HasOne("DiscordApp.Domain.Models.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiscordApp.Domain.Models.ServerInfo", "Server")
+                        .WithMany()
+                        .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+
+                    b.Navigation("Server");
+                });
+
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerMember", b =>
+                {
+                    b.HasOne("DiscordApp.Domain.Models.ServerInfo", "Server")
+                        .WithMany("Members")
+                        .HasForeignKey("ServerInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Server");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -339,6 +484,11 @@ namespace DiscordApp.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerInfo", b =>
+                {
+                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }

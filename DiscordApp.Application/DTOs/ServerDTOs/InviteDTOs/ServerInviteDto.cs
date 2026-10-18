@@ -3,7 +3,7 @@ namespace DiscordApp.Application.DTOs.ServerDTOs;
 public class ServerInviteDto
 {
     public string Code { get; set; } = null!;
-    public string ServerId { get; set; } = null!;
+    public int ServerId { get; set; }
     public string ServerName { get; set; } = null!;
     
     public string CreatorId { get; set; } = null!;

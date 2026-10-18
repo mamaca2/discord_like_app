@@ -114,7 +114,7 @@ namespace DiscordApp.Infrastructure.Migrations
                     b.ToTable("ServerInfos");
                 });
 
-            modelBuilder.Entity("DiscordApp.Domain.Models.ServerMember", b =>
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerInvite", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -122,22 +122,56 @@ namespace DiscordApp.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MaxUses")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ServerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Uses")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("ServerId");
+
+                    b.ToTable("ServerInvites");
+                });
+
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerMember", b =>
+                {
+                    b.Property<int>("ServerInfoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Role")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ServerInfoId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ServerInfoId");
+                    b.HasKey("ServerInfoId", "UserId");
 
                     b.ToTable("ServerMembers");
                 });
@@ -213,9 +247,6 @@ namespace DiscordApp.Infrastructure.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
-
-                    b.HasIndex("UserName", "Tag")
-                        .IsUnique();
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -369,6 +400,25 @@ namespace DiscordApp.Infrastructure.Migrations
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerInvite", b =>
+                {
+                    b.HasOne("DiscordApp.Domain.Models.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiscordApp.Domain.Models.ServerInfo", "Server")
+                        .WithMany()
+                        .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+
+                    b.Navigation("Server");
                 });
 
             modelBuilder.Entity("DiscordApp.Domain.Models.ServerMember", b =>

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DiscordApp.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddUserTokenCache : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,8 +33,7 @@ namespace DiscordApp.Infrastructure.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     Image = table.Column<string>(type: "text", nullable: true),
                     Tag = table.Column<string>(type: "text", nullable: false),
-                    CurrentToken = table.Column<string>(type: "text", nullable: true),
-                    TokenExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DisplayName = table.Column<string>(type: "text", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -53,6 +52,39 @@ namespace DiscordApp.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PendingRegistrations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    IsVerified = table.Column<bool>(type: "boolean", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PendingRegistrations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServerInfos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Image = table.Column<string>(type: "text", nullable: true),
+                    OwnerId = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServerInfos", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -190,6 +222,58 @@ namespace DiscordApp.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ServerInvites",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    ServerId = table.Column<int>(type: "integer", nullable: false),
+                    CreatorId = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    MaxUses = table.Column<int>(type: "integer", nullable: false),
+                    Uses = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServerInvites", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ServerInvites_AspNetUsers_CreatorId",
+                        column: x => x.CreatorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ServerInvites_ServerInfos_ServerId",
+                        column: x => x.ServerId,
+                        principalTable: "ServerInfos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServerMembers",
+                columns: table => new
+                {
+                    ServerInfoId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false),
+                    Role = table.Column<int>(type: "integer", nullable: false),
+                    JoinedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServerMembers", x => new { x.ServerInfoId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_ServerMembers_ServerInfos_ServerInfoId",
+                        column: x => x.ServerInfoId,
+                        principalTable: "ServerInfos",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -222,12 +306,6 @@ namespace DiscordApp.Infrastructure.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_UserName_Tag",
-                table: "AspNetUsers",
-                columns: new[] { "UserName", "Tag" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -242,6 +320,16 @@ namespace DiscordApp.Infrastructure.Migrations
                 name: "IX_FriendRequests_SenderId",
                 table: "FriendRequests",
                 column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServerInvites_CreatorId",
+                table: "ServerInvites",
+                column: "CreatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServerInvites_ServerId",
+                table: "ServerInvites",
+                column: "ServerId");
         }
 
         /// <inheritdoc />
@@ -266,10 +354,22 @@ namespace DiscordApp.Infrastructure.Migrations
                 name: "FriendRequests");
 
             migrationBuilder.DropTable(
+                name: "PendingRegistrations");
+
+            migrationBuilder.DropTable(
+                name: "ServerInvites");
+
+            migrationBuilder.DropTable(
+                name: "ServerMembers");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "ServerInfos");
         }
     }
 }

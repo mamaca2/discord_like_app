@@ -4,8 +4,10 @@ namespace DiscordApp.Domain.Models;
 
 public class ServerInvite
 {
+    public int Id { get; set; }
     public string Code { get; set; } = string.Empty;
-    public string ServerId { get; set; } = string.Empty; 
+
+    public int ServerId { get; set; }
     public ServerInfo? Server { get; set; }
 
     public string CreatorId { get; set; } = string.Empty;
