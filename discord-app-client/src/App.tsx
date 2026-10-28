@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './App.css'
-import LoginPage from './Authentication/loginpage'
+import LoginPage from './Authentication/LoginPage'
 import RegisterPage from './Authentication/RegisterPage'
 
 

@@ -22,5 +22,15 @@ public class ServersController(IServerService serverService) : BaseApiController
         var result = await serverService.CreateServerAsync(userId, createServerDto);
         return ToActionResult(result);
     }
-    
+
+    [HttpGet("user-servers")]
+    public async Task<ActionResult<List<ServerDto>>> GetUserServers()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        var result = await serverService.GetUserServersAsync(userId);
+        return ToActionResult(result);
+    }
 }

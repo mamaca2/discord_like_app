@@ -43,7 +43,6 @@ public class ServerService(IAppDbContext dbContext) : IServerService
             Name = server.Name,
             Image = server.Image,
             OwnerId = server.OwnerId,
-            CreatedAt = server.CreatedAt,
             MemberCount = 1
         };
 
@@ -73,9 +72,22 @@ public class ServerService(IAppDbContext dbContext) : IServerService
         return Result.Success();
     }
 
-    public Task<Result<List<ServerDto>>> GetUserServersAsync(string userId)
+    public async Task<Result<List<ServerDto>>> GetUserServersAsync(string userId)
     {
-        throw new NotImplementedException();
+        var servers = await dbContext.ServerMembers
+            .AsNoTracking()
+            .Where(sm => sm.UserId == userId)
+            .Select(sm => new ServerDto
+            {
+                Id = sm.Server.Id,
+                Name = sm.Server.Name,
+                Image = sm.Server.Image,
+                OwnerId = sm.Server.OwnerId,
+                MemberCount = sm.Server.Members.Count
+            })
+            .ToListAsync();
+
+        return Result<List<ServerDto>>.Success(servers);
     }
 
     public Task<Result<ServerDto>> UpdateServerAsync(string serverId, string currentUserId, UpdateServerDto dto)

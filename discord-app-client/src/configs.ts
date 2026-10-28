@@ -1,4 +1,3 @@
-
 export const CONFIGS = {
   API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5187/api',
   
@@ -11,6 +10,8 @@ export const CONFIGS = {
     },
     SERVERS: {
       BASE: '/servers',
+      USER_SERVERS: '/user-servers',
+      CREATE: '/create-server',
       JOIN: (code: string) => `/servers/join/${code}`,
     },
     FRIENDS: {
