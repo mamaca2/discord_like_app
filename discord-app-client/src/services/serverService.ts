@@ -18,7 +18,10 @@ export async function getUserServers(token: string): Promise<ServerDto[]> {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to load user servers");
+    const errorText = await response.text();
+    console.error(`API Error (${response.status}):`, errorText);
+    
+    throw new Error(errorText || `Failed to load user servers (Status: ${response.status})`);
   }
 
   const data = await response.json();

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import LoginPage from './Authentication/LoginPage'
 import RegisterPage from './Authentication/RegisterPage'
-
+import MainPage from './Main/MainPage' 
 
 function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
@@ -29,17 +29,7 @@ function App() {
     )
   }
 
-  return (
-    <div className="app-container">
-      <header>
-        <h1>Discord Clone</h1>
-        <button onClick={handleLogout}>Log Out</button>
-      </header>
-      <main>
-        <h2>Welcome to the server!</h2>
-      </main>
-    </div>
-  )
+  return <MainPage token={token} onLogout={handleLogout} />
 }
 
 export default App

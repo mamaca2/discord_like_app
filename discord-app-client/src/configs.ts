@@ -10,8 +10,7 @@ export const CONFIGS = {
     },
     SERVERS: {
       BASE: '/servers',
-      USER_SERVERS: '/user-servers',
-      CREATE: '/create-server',
+      USER_SERVERS: '/servers/user-servers',
       JOIN: (code: string) => `/servers/join/${code}`,
     },
     FRIENDS: {

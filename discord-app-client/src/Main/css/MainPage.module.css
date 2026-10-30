@@ -10,12 +10,20 @@
 
 .serverSidebar {
   width: 72px;
+  min-width: 72px;
   background-color: #1e1f22;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 12px 0;
   gap: 8px;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .serverIcon {
@@ -205,3 +213,25 @@
   border-bottom: 1px solid #1f2023;
   padding-bottom: 12px;
 }
+
+.friendsIcon,
+.serverIcon {
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.serverSidebar { overflow-y: auto; }   /* many servers can scroll */
+
+.logoutButton {
+  margin-top: auto;                    /* pushes it to the bottom */
+  background: none;
+  border: none;
+  color: #b5bac1;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 12px 0;
+}
+.logoutButton:hover { color: #f23f42; }

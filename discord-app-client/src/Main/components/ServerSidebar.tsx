@@ -1,56 +1,52 @@
-import type { ServerDto } from "../../services/serverService";
-import styles from "../MainPage.module.css";
+import styles from "./ServerSidebar.module.css";
 
-interface ServerSidebarProps {
-  servers: ServerDto[];
-  activeServerId: number | null;
-  isFriendsActive: boolean;
-  onSelectFriends: () => void;
-  onSelectServer: (serverId: number) => void;
+export interface Channel {
+  id: number;
+  name: string;
+  type: "text" | "voice";
 }
 
-export function ServerSidebar({
-  servers,
-  activeServerId,
-  isFriendsActive,
-  onSelectFriends,
-  onSelectServer,
+// Mock data until the backend has channels
+const MOCK_CHANNELS: Channel[] = [
+  { id: 1, name: "general", type: "text" },
+  { id: 2, name: "random", type: "text" },
+  { id: 3, name: "Lounge", type: "voice" },
+];
+
+interface ServerSidebarProps {
+  serverName: string;
+  activeChannelId: number | null;
+  onSelectChannel: (channel: Channel) => void;
+}
+
+export default function ServerSidebar({
+  serverName,
+  activeChannelId,
+  onSelectChannel,
 }: ServerSidebarProps) {
-  return (
-    <nav className={styles.serverSidebar}>
-      {/* 1. Direct Messages / Friends Icon */}
-      <div
-        className={`${styles.friendsIcon} ${isFriendsActive ? styles.activeTab : ""}`}
-        onClick={onSelectFriends}
-        title="Direct Messages & Friends"
+  const render = (type: Channel["type"], prefix: string) =>
+    MOCK_CHANNELS.filter((c) => c.type === type).map((c) => (
+      <button
+        type="button"
+        key={c.id}
+        className={`${styles.channelButton} ${
+          activeChannelId === c.id ? styles.active : ""
+        }`}
+        onClick={() => onSelectChannel(c)}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-        </svg>
-      </div>
+        {prefix} {c.name}
+      </button>
+    ));
 
-      <div className={styles.separator} />
+  return (
+    <div className={styles.sidebar}>
+      <div className={styles.serverName}>{serverName}</div>
 
-      {/* 2. Dynamically Rendered Server Icons */}
-      {servers.map((server) => {
-        const isActive = !isFriendsActive && activeServerId === server.id;
+      <div className={styles.sectionTitle}>Chats</div>
+      {render("text", "#")}
 
-        return (
-          <div
-            key={server.id}
-            className={`${styles.serverIcon} ${isActive ? styles.activeServer : ""}`}
-            onClick={() => onSelectServer(server.id)}
-            title={server.name}
-          >
-            {/* Updated server.iconUrl to server.image */}
-            {server.image ? (
-              <img src={server.image} alt={server.name} className={styles.serverImage} />
-            ) : (
-              server.name.substring(0, 2).toUpperCase()
-            )}
-          </div>
-        );
-      })}
-    </nav>
+      <div className={styles.sectionTitle}>Calls</div>
+      {render("voice", "🔊")}
+    </div>
   );
 }
