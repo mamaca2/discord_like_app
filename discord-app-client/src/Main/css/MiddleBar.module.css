@@ -1,0 +1,10 @@
+.middleBar {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  height: 100%;
+  flex-shrink: 0;
+  background: #2b2d31;
+  padding: 12px 8px;
+  box-sizing: border-box;
+}

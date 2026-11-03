@@ -1,11 +1,13 @@
 import { CONFIGS } from "../configs";
 
+export type UserStatus = "Online" | "Offline";
+
 export interface FriendDto {
   id: string;
   username: string;
   tag: string;
   image?: string;
-  status: string;
+  status: UserStatus;
 }
 
 export interface AddFriendDto {

@@ -1,30 +1,26 @@
 import type { ServerDto } from "../../services/serverService";
-import styles from "../MainPage.module.css";
+import styles from "../css/ServerList.module.css";
 
 interface ServerListProps {
   servers: ServerDto[];
   activeServerId: number | null;
-  isFriendsActive: boolean;
+  activeBar: "friends" | "server" | "search";
   onSelectFriends: () => void;
   onSelectServer: (serverId: number) => void;
-  onAddServer?: () => void;
-  onLogout?: () => void;
 }
 
 export function ServerList({
   servers,
   activeServerId,
-  isFriendsActive,
+  activeBar,
   onSelectFriends,
   onSelectServer,
-  onAddServer,
-  onLogout,
 }: ServerListProps) {
   return (
     <nav className={styles.serverSidebar}>
       <button
         type="button"
-        className={`${styles.friendsIcon} ${isFriendsActive ? styles.activeTab : ""}`}
+        className={`${styles.friendsIcon} ${activeBar !== "server" ? styles.activeTab : ""}`}
         onClick={onSelectFriends}
         title="Direct Messages & Friends"
       >
@@ -36,7 +32,8 @@ export function ServerList({
       <div className={styles.separator} />
 
       {servers.map((server) => {
-        const isActive = !isFriendsActive && activeServerId === server.id;
+        const isActive = activeBar === "server" && activeServerId === server.id;
+
         return (
           <button
             type="button"
@@ -46,7 +43,11 @@ export function ServerList({
             title={server.name}
           >
             {server.image ? (
-              <img src={server.image} alt={server.name} className={styles.serverImage} />
+              <img
+                src={server.image}
+                alt={server.name}
+                className={styles.serverImage}
+              />
             ) : (
               server.name.substring(0, 2).toUpperCase()
             )}
@@ -54,12 +55,25 @@ export function ServerList({
         );
       })}
 
-      <button type="button" className={styles.serverIcon} onClick={onAddServer} title="Add a server">
-        +
-      </button>
-
-      <button type="button" className={styles.logoutButton} onClick={onLogout} title="Log out">
-        ⎋
+      <button
+        type="button"
+        className={styles.settingsIcon}
+        onClick={() => console.log("Settings clicked")}
+        title="Settings"
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" />
+          <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.86 2.86-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1.4 1.6V21h-4v-.08A1.7 1.7 0 0 0 8 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.86-2.86.06-.06A1.7 1.7 0 0 0 3.6 15 1.7 1.7 0 0 0 2 13.6H2v-4h.08A1.7 1.7 0 0 0 3.6 8a1.7 1.7 0 0 0-.34-1.88L3.2 6.06 6.06 3.2l.06.06A1.7 1.7 0 0 0 8 3.6 1.7 1.7 0 0 0 9.4 2H13.6A1.7 1.7 0 0 0 15 3.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.86 2.86-.06.06A1.7 1.7 0 0 0 19.4 8 1.7 1.7 0 0 0 21 9.4V13.6A1.7 1.7 0 0 0 19.4 15Z" />
+        </svg>
       </button>
     </nav>
   );

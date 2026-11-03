@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DiscordApp.Api.Controllers;
 
 [ApiController]
+
 [Route("api/servers")]
 [Authorize]
 public class ServersController(IServerService serverService) : BaseApiController

@@ -1,22 +1,26 @@
 import type { FriendDto } from "../../services/friendsService";
-import styles from "./FriendsSidebar.module.css";
+import styles from "../css/FriendsBar.module.css";
 
-interface FriendsSidebarProps {
+interface FriendsBarProps {
   friends: FriendDto[];
   activeFriendId?: string | null;
   onSelectFriend?: (friendId: string) => void;
   onAddFriend?: () => void;
 }
 
-export default function FriendsSideBar({
+export default function FriendsBar({
   friends,
   activeFriendId,
   onSelectFriend,
   onAddFriend,
-}: FriendsSidebarProps) {
+}: FriendsBarProps) {
   return (
-    <div className={styles.sidebar}>
-      <button type="button" className={styles.addFriendButton} onClick={onAddFriend}>
+    <>
+      <button
+        type="button"
+        className={styles.addFriendButton}
+        onClick={onAddFriend}
+      >
         + Friends
       </button>
 
@@ -32,6 +36,6 @@ export default function FriendsSideBar({
           {friend.username}#{friend.tag}
         </button>
       ))}
-    </div>
+    </>
   );
 }

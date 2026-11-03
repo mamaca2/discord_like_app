@@ -17,6 +17,7 @@ export const CONFIGS = {
       BASE: '/friends',
       REQUESTS: '/friends/requests',
     },
+    SEARCH: '/users/search'
   },
 
   STORAGE_KEYS: {

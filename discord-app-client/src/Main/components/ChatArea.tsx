@@ -1,4 +1,4 @@
-import styles from "./ChatArea.module.css";
+import styles from "../css/ChatArea.module.css";
 
 interface ChatAreaProps {
   title: string | null;

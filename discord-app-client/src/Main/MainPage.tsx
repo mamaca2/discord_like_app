@@ -1,11 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
+
 import { ServerList } from "./components/ServerList";
-import FriendsSideBar from "./components/FriendsSideBar";
-import ServerSidebar, { type Channel } from "./components/ServerSideBar";
+import FriendsBar from "./components/FriendsBar";
+import ServerBar from "./components/ServerBar";
 import ChatArea from "./components/ChatArea";
+import { SearchBar } from "./components/SearchBar";
+
 import { getUserServers, type ServerDto } from "../services/serverService";
 import { getUserFriends, type FriendDto } from "../services/friendsService";
-import styles from "./MainPage.module.css";
+
+import styles from "./css/MainPage.module.css";
+import middleStyles from "./css/MiddleBar.module.css";
 
 interface MainPageProps {
   token: string;
@@ -13,16 +18,19 @@ interface MainPageProps {
 }
 
 export default function MainPage({ token, onLogout }: MainPageProps) {
-  const [isFriendsActive, setIsFriendsActive] = useState<boolean>(true);
   const [activeServerId, setActiveServerId] = useState<number | null>(null);
   const [activeFriendId, setActiveFriendId] = useState<string | null>(null);
-  const [activeChannel, setActiveChannel] = useState<Channel | null>(null);
+  
+  type ActiveBar = "friends" | "server" | "search";
+  const [activeBar, setActiveBar] = useState<ActiveBar>("friends");
 
   const [servers, setServers] = useState<ServerDto[]>([]);
   const [friends, setFriends] = useState<FriendDto[]>([]);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+
 
   useEffect(() => {
     let isMounted = true;
@@ -60,26 +68,26 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
   }, [token]);
 
   const handleSelectFriends = () => {
-    setIsFriendsActive(true);
+    setActiveBar("friends")
     setActiveServerId(null);
-    setActiveChannel(null);
   };
 
   const handleSelectServer = (serverId: number) => {
-    setIsFriendsActive(false);
     setActiveServerId(serverId);
     setActiveFriendId(null);
-    setActiveChannel(null);
   };
 
-  const activeFriend = friends.find((f) => f.id === activeFriendId) ?? null;
-  const activeServer = servers.find((s) => s.id === activeServerId) ?? null;
 
-  const chatTitle = isFriendsActive
-    ? activeFriend
-      ? `${activeFriend.username}#${activeFriend.tag}`
-      : null
-    : activeChannel?.name ?? null;
+  const handleAddFriendClicked = () => {
+    setActiveBar("search");
+  };
+
+
+  // const chatTitle = isPersonalIconClicked
+  //   ? activeFriend
+  //     ? `${activeFriend.username}#${activeFriend.tag}`
+  //     : null
+  //   : activeChannel?.name ?? null;
 
   if (isLoading) return <div className={styles.container}>Loading...</div>;
   if (error) {
@@ -96,27 +104,33 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
       <ServerList
         servers={servers}
         activeServerId={activeServerId}
-        isFriendsActive={isFriendsActive}
+        activeBar={activeBar}
         onSelectFriends={handleSelectFriends}
         onSelectServer={handleSelectServer}
       />
 
-      {isFriendsActive ? (
-        <FriendsSideBar
-          friends={friends}
-          activeFriendId={activeFriendId}
-          onSelectFriend={setActiveFriendId}
-          onAddFriend={() => console.log("open add friend")}
-        />
-      ) : (
-        <ServerSidebar
-          serverName={activeServer?.name ?? ""}
-          activeChannelId={activeChannel?.id ?? null}
-          onSelectChannel={setActiveChannel}
-        />
-      )}
+      <aside className={middleStyles.middleBar}>
+        {activeBar === "friends" && (
+          <FriendsBar
+            friends={friends}
+            activeFriendId={activeFriendId}
+            onSelectFriend={setActiveFriendId}
+            onAddFriend={handleAddFriendClicked}
+          />
+        )}
 
-      <ChatArea title={chatTitle} />
+        {/* {activeBar === "server" && (
+          <ServerBar serverName={activeServer?.name ?? ""} />
+        )} */}
+
+        {activeBar === "search" && (
+          <SearchBar
+            token={token}
+          />
+        )}
+      </aside>
+
+      {/*<ChatArea title={chatTitle} />*/}
     </div>
   );
 }

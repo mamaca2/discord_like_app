@@ -7,8 +7,7 @@ interface AuthenticationPageProps {
   onGoToRegister: () => void;
 }
 
-
-export default function LoginPage({   onLoginSuccess, onGoToRegister }: AuthenticationPageProps) {
+export default function LoginPage({ onLoginSuccess, onGoToRegister }: AuthenticationPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
