@@ -83,8 +83,14 @@ public class FriendRequestService: IFriendRequestService
                     Id = fr.Id,
                     SenderId = fr.SenderId,
                     SenderUserName = sender.UserName ?? string.Empty,
+                    SenderTag = sender.Tag,
+                    SenderImage = sender.Image,
+
                     ReceiverId = fr.ReceiverId,
                     ReceiverUserName = receiver.UserName ?? string.Empty,
+                    ReceiverTag = receiver.Tag,
+                    ReceiverImage = receiver.Image,
+
                     SentAt = fr.SentAt,
                     Status = fr.Status
                 })
@@ -111,8 +117,14 @@ public class FriendRequestService: IFriendRequestService
                     Id = fr.Id,
                     SenderId = fr.SenderId,
                     SenderUserName = sender.UserName ?? string.Empty,
+                    SenderTag = sender.Tag,
+                    SenderImage = sender.Image,
+
                     ReceiverId = fr.ReceiverId,
                     ReceiverUserName = receiver.UserName ?? string.Empty,
+                    ReceiverTag = receiver.Tag,
+                    ReceiverImage = receiver.Image,
+
                     SentAt = fr.SentAt,
                     Status = fr.Status
                 })
@@ -133,7 +145,6 @@ public class FriendRequestService: IFriendRequestService
         if (receiver is null)
             return Result<FriendRequestDto>.NotFound(
                 new Error(ErrorCodes.NotFound, "Receiver not found."));
-        Console.WriteLine("------------- MOIDAAAAA!!!!!!!!! -------------------");
         // Check bi-directional relationship status
         var existingRelationship = await _appDbContext.FriendRequests
             .FirstOrDefaultAsync(fr =>
@@ -158,7 +169,11 @@ public class FriendRequestService: IFriendRequestService
         }
 
         var sender = await _userManager.FindByIdAsync(senderId);
-        
+                
+        if (sender is null)
+            return Result<FriendRequestDto>.NotFound(
+                new Error(ErrorCodes.NotFound, "Sender not found."));
+
         var request = new FriendRequest
         {
             SenderId = senderId,
@@ -173,10 +188,17 @@ public class FriendRequestService: IFriendRequestService
         var result = new FriendRequestDto
         {
             Id = request.Id,
+
             SenderId = request.SenderId,
             SenderUserName = sender?.UserName ?? string.Empty,
+            SenderTag = sender.Tag ?? string.Empty,
+            SenderImage = sender.Image,
+
             ReceiverId = request.ReceiverId,
             ReceiverUserName = receiver.UserName ?? string.Empty,
+            ReceiverTag = receiver.Tag ?? string.Empty,
+            ReceiverImage = receiver.Image,
+
             SentAt = request.SentAt,
             Status = request.Status
         };

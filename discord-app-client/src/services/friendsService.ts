@@ -35,31 +35,13 @@ export async function getUserFriends(token: string): Promise<FriendDto[]> {
   return data.value ?? data;
 }
 
-export async function addFriend(token: string, payload: AddFriendDto): Promise<void> {
-  const response = await fetch(`${CONFIGS.API_BASE_URL}${CONFIGS.ENDPOINTS.FRIENDS.REQUESTS}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error(`API Error (${response.status}):`, errorText);
-
-    throw new Error(errorText || `Failed to send friend request (Status: ${response.status})`);
-  }
-}
-
 export async function respondToFriendRequest(
   token: string,
   requestId: string,
   accept: boolean
 ): Promise<void> {
   const response = await fetch(
-    `${CONFIGS.API_BASE_URL}${CONFIGS.ENDPOINTS.FRIENDS.REQUESTS}/${requestId}/${accept ? "accept" : "decline"}`,
+    `${CONFIGS.API_BASE_URL}${CONFIGS.ENDPOINTS.FRIEND_REQUESTS}/${requestId}/${accept ? "accept" : "decline"}`,
     {
       method: "PUT",
       headers: {

@@ -6,6 +6,7 @@ interface FriendsBarProps {
   activeFriendId?: string | null;
   onSelectFriend?: (friendId: string) => void;
   onAddFriend?: () => void;
+  onShowRequests?: () => void;
 }
 
 export default function FriendsBar({
@@ -13,6 +14,7 @@ export default function FriendsBar({
   activeFriendId,
   onSelectFriend,
   onAddFriend,
+  onShowRequests,
 }: FriendsBarProps) {
   return (
     <>
@@ -23,6 +25,16 @@ export default function FriendsBar({
       >
         + Friends
       </button>
+
+      <button
+        type="button"
+        className={styles.friendButton}
+        onClick={onShowRequests}
+      >
+        Friend Requests
+      </button>
+
+      <div className={styles.sectionTitle}>DIRECT MESSAGES</div>
 
       {friends.map((friend) => (
         <button

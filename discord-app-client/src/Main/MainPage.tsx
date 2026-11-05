@@ -8,9 +8,11 @@ import { SearchBar } from "./components/SearchBar";
 
 import { getUserServers, type ServerDto } from "../services/serverService";
 import { getUserFriends, type FriendDto } from "../services/friendsService";
+import  { getIncomingFriendRequests, type FriendRequestDto } from "../services/friendRequestService";
 
 import styles from "./css/MainPage.module.css";
 import middleStyles from "./css/MiddleBar.module.css";
+import { FriendRequests } from "./components/FriendRequests";
 
 interface MainPageProps {
   token: string;
@@ -24,13 +26,22 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
   type ActiveBar = "friends" | "server" | "search";
   const [activeBar, setActiveBar] = useState<ActiveBar>("friends");
 
+  type ActiveContent =
+  | { type: "chat"; friendId: string }
+  | { type: "friendRequests" }
+  | { type: "empty" };
+  const [activeContent, setActiveContent] = useState<ActiveContent>({
+    type: "empty",
+  });
+
   const [servers, setServers] = useState<ServerDto[]>([]);
   const [friends, setFriends] = useState<FriendDto[]>([]);
+  
+  const [incomingFriendRequests, setIncomingFriendRequests] = useState<FriendRequestDto[]>([]);
+  const [outgoingFriendRequests, setOutgoingFriendRequests] = useState<FriendRequestDto[]>([]);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-
 
   useEffect(() => {
     let isMounted = true;
@@ -40,14 +51,16 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
         setIsLoading(true);
         setError(null);
 
-        const [userServers, userFriends] = await Promise.all([
+        const [userServers, userFriends, userIncomingFriendRequests] = await Promise.all([
           getUserServers(token),
           getUserFriends(token),
+          getIncomingFriendRequests(token),
         ]);
 
         if (isMounted) {
           setServers(userServers);
           setFriends(userFriends);
+          setIncomingFriendRequests(userIncomingFriendRequests);
         }
       } catch (err) {
         if (isMounted) {
@@ -82,6 +95,9 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
     setActiveBar("search");
   };
 
+  const handleShowingFriendRequests = () =>{
+    setActiveContent({ type: "friendRequests" });
+  };
 
   // const chatTitle = isPersonalIconClicked
   //   ? activeFriend
@@ -116,6 +132,7 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
             activeFriendId={activeFriendId}
             onSelectFriend={setActiveFriendId}
             onAddFriend={handleAddFriendClicked}
+            onShowRequests={handleShowingFriendRequests}
           />
         )}
 
@@ -131,6 +148,12 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
       </aside>
 
       {/*<ChatArea title={chatTitle} />*/}
+      {activeContent.type === "friendRequests" && (
+        <FriendRequests
+          incomingRequests={incomingFriendRequests}
+          outgoingRequests={outgoingFriendRequests}
+        />
+      )}
     </div>
   );
 }

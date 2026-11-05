@@ -9,15 +9,19 @@ export const CONFIGS = {
       COMPLETE_REGISTRATION: '/auth/complete-registration',
     },
     SERVERS: {
-      BASE: '/servers',
       USER_SERVERS: '/servers/user-servers',
       JOIN: (code: string) => `/servers/join/${code}`,
     },
     FRIENDS: {
-      BASE: '/friends',
-      REQUESTS: '/friends/requests',
+      BASE: '/friends'
     },
-    SEARCH: '/users/search'
+    FRIEND_REQUESTS: {
+      SEND: '/friend-requests/send',
+      INCOMING: '/friend-requests/incoming',
+      OUTGOING: '/friend-requests/outgoing',
+    },
+
+    SEARCH: '/users/search',
   },
 
   STORAGE_KEYS: {

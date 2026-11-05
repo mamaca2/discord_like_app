@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styles from "../css/SearchBar.module.css";
 import { searchUsers, type UserSearchDto } from "../../services/userSearchService";
+import { sendFriendRequest } from "../../services/friendRequestService";
 
 interface SearchBarProps {
   token: string;
@@ -19,6 +20,15 @@ export function SearchBar({ token }: SearchBarProps) {
       setSearchResults([]);
     }
   };
+
+  const handleFriendRequest = async (receiverId: string) => {
+    try {
+        await sendFriendRequest(token, receiverId);
+        console.log("Friend request sent");
+    } catch (error) {
+        console.error(error);
+    } 
+  }
 
   return (
     <>
@@ -43,8 +53,11 @@ export function SearchBar({ token }: SearchBarProps) {
               {user.userName}#{user.tag}
             </span>
 
-            <button type="button" className={styles.addFriendButton}>
-              Add
+            <button   
+              type="button"
+              className={styles.addFriendButton}
+              onClick={() => handleFriendRequest(user.id)}>
+                Add
             </button>
           </div>
         ))}

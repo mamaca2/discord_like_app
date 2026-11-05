@@ -5,6 +5,7 @@ using DiscordApp.Application.Results;
 using DiscordApp.Domain.Common;
 using DiscordApp.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ public class FriendsService(IAppDbContext appDbContext) : IFriendsService
                 UserName = user.UserName ?? string.Empty,
                 Tag = user.Tag,
                 Image = user.Image ?? string.Empty,
-                Status = "Offline"
+                Status = UserStatus.Offline
             })
             .ToListAsync();
 
