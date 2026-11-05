@@ -1,0 +1,45 @@
+.settingsContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  padding: 24px 32px 40px;
+  box-sizing: border-box;
+  background: #313338;
+  color: white;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: left;
+  margin: 0 0 24px;
+}
+
+.settingsContent {
+  flex: 1;
+  text-align: left;
+}
+
+.settingsContent h3 {
+  font-size: 16px;
+  color: #b5bac1;
+}
+
+.logoutButton {
+  align-self: flex-start;
+  padding: 12px 24px;
+  background: #da373c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  background: #a12828;
+}

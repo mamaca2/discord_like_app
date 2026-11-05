@@ -15,7 +15,7 @@ export function FriendRequests({
 
       {incomingRequests.map((request) => (
         <div key={request.id}>
-          {request.senderUserName}#{request.senderTag}
+          {request.senderUserName}
         </div>
       ))}
 
@@ -23,7 +23,7 @@ export function FriendRequests({
 
       {outgoingRequests.map((request) => (
         <div key={request.id}>
-          {request.receiverUserName}#{request.receiverTag}
+          {request.receiverUserName}
         </div>
       ))}
     </div>

@@ -18,7 +18,7 @@ export interface FriendRequestDto {
 export async function sendFriendRequest(
   token: string,
   receiverId: string
-): Promise<void> {
+): Promise<FriendRequestDto> {
   const response = await fetch(
     `${CONFIGS.API_BASE_URL}${CONFIGS.ENDPOINTS.FRIEND_REQUESTS.SEND}`,
     {
@@ -35,6 +35,8 @@ export async function sendFriendRequest(
     const errorText = await response.text();
     throw new Error(errorText || "Failed to send friend request");
   }
+
+  return response.json();
 }
 
 export async function getIncomingFriendRequests(

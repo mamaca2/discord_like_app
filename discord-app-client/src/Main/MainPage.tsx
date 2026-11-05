@@ -13,6 +13,7 @@ import  { getIncomingFriendRequests, type FriendRequestDto } from "../services/f
 import styles from "./css/MainPage.module.css";
 import middleStyles from "./css/MiddleBar.module.css";
 import { FriendRequests } from "./components/FriendRequests";
+import Settings from "./components/Settings";
 
 interface MainPageProps {
   token: string;
@@ -29,6 +30,7 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
   type ActiveContent =
   | { type: "chat"; friendId: string }
   | { type: "friendRequests" }
+  | { type: "settings"}
   | { type: "empty" };
   const [activeContent, setActiveContent] = useState<ActiveContent>({
     type: "empty",
@@ -99,6 +101,15 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
     setActiveContent({ type: "friendRequests" });
   };
 
+  const handleServerIconClicked = () =>{
+    setActiveContent({ type: "settings" });
+  };
+
+  const appendOutgoingFriendRequests = (request: FriendRequestDto) => {
+    console.log("appended");
+    setOutgoingFriendRequests((prev) => [...prev, request]);
+  };
+
   // const chatTitle = isPersonalIconClicked
   //   ? activeFriend
   //     ? `${activeFriend.username}#${activeFriend.tag}`
@@ -123,6 +134,7 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
         activeBar={activeBar}
         onSelectFriends={handleSelectFriends}
         onSelectServer={handleSelectServer}
+        onSettingsClick={handleServerIconClicked}
       />
 
       <aside className={middleStyles.middleBar}>
@@ -143,6 +155,7 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
         {activeBar === "search" && (
           <SearchBar
             token={token}
+            appendOutgoingFriendRequests={appendOutgoingFriendRequests}
           />
         )}
       </aside>
@@ -152,6 +165,12 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
         <FriendRequests
           incomingRequests={incomingFriendRequests}
           outgoingRequests={outgoingFriendRequests}
+        />
+      )}
+
+      {activeContent.type === "settings" && (
+        <Settings
+          onLogout={onLogout}
         />
       )}
     </div>

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import styles from "../css/SearchBar.module.css";
 import { searchUsers, type UserSearchDto } from "../../services/userSearchService";
-import { sendFriendRequest } from "../../services/friendRequestService";
+import { sendFriendRequest, type FriendRequestDto } from "../../services/friendRequestService";
 
 interface SearchBarProps {
   token: string;
+  appendOutgoingFriendRequests: (friendRequest: FriendRequestDto) => void;
 }
 
-export function SearchBar({ token }: SearchBarProps) {
+export function SearchBar({ token, appendOutgoingFriendRequests}: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UserSearchDto[]>([]);
 
@@ -23,12 +24,14 @@ export function SearchBar({ token }: SearchBarProps) {
 
   const handleFriendRequest = async (receiverId: string) => {
     try {
-        await sendFriendRequest(token, receiverId);
-        console.log("Friend request sent");
+      const request = await sendFriendRequest(token, receiverId);
+      appendOutgoingFriendRequests(request);
+
+      console.log("Friend request sent");
     } catch (error) {
-        console.error(error);
-    } 
-  }
+      console.error(error);
+    }
+  };
 
   return (
     <>

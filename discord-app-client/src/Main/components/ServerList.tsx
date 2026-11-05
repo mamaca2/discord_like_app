@@ -7,6 +7,7 @@ interface ServerListProps {
   activeBar: "friends" | "server" | "search";
   onSelectFriends: () => void;
   onSelectServer: (serverId: number) => void;
+  onSettingsClick: () => void;
 }
 
 export function ServerList({
@@ -15,6 +16,7 @@ export function ServerList({
   activeBar,
   onSelectFriends,
   onSelectServer,
+  onSettingsClick
 }: ServerListProps) {
   return (
     <nav className={styles.serverSidebar}>
@@ -58,7 +60,7 @@ export function ServerList({
       <button
         type="button"
         className={styles.settingsIcon}
-        onClick={() => console.log("Settings clicked")}
+        onClick={onSettingsClick}
         title="Settings"
       >
         <svg
