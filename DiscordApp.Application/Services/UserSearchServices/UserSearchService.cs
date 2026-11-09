@@ -11,8 +11,8 @@ namespace DiscordApp.Application.Services.UserSearchServices;
 public class UserSearchService(UserManager<User> userManager) : IUserSearchService
 {
     public async Task<Result<PagedList<UserSearchDto>>> SearchByUsernameAsync(
-        UserSearchQueryParams queryParams)
-    {
+        UserSearchQueryParams queryParams, string sercherId)
+    {  
         var validationResult = UserSearchQueryValidator.ParseAndValidate(queryParams.Query);
         if (!validationResult.IsSuccess)
         {
@@ -33,7 +33,7 @@ public class UserSearchService(UserManager<User> userManager) : IUserSearchServi
         {
             baseQuery = userManager.Users
                 .AsNoTracking()
-                .Where(u => u.DisplayName == parsed.Username && u.Tag != null);
+                .Where(u => u.DisplayName == parsed.Username && !u.Id.Equals(sercherId) && u.Tag != null);
 
             if (!string.IsNullOrEmpty(parsed.Tag))
             {
@@ -46,7 +46,8 @@ public class UserSearchService(UserManager<User> userManager) : IUserSearchServi
         {
             baseQuery = userManager.Users
                 .AsNoTracking()
-                .Where(u => u.DisplayName != null && EF.Functions.ILike(u.DisplayName, $"%{parsed.Username}%"))
+                .Where(u => u.DisplayName != null && !u.Id.Equals(sercherId) &&
+                        EF.Functions.ILike(u.DisplayName, $"%{parsed.Username}%"))
                 .OrderBy(u => u.DisplayName)
                 .ThenBy(u => u.Tag);
         }

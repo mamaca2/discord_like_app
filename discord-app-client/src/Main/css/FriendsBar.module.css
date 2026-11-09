@@ -50,3 +50,79 @@
   background: #404249;
   color: #fff;
 }
+
+.friendButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #b5bac1;
+  cursor: pointer;
+  text-align: left;
+}
+
+.friendButton:hover {
+  background: #35373c;
+}
+
+.avatarContainer {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.avatar,
+.defaultAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.avatar {
+  object-fit: cover;
+}
+
+.defaultAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #5865f2;
+  color: white;
+  font-weight: bold;
+}
+
+.statusCircle {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 14px;
+  height: 14px;
+  border: 3px solid #151617;
+  border-radius: 50%;
+  box-sizing: content-box;
+}
+
+.online {
+  background: #23a559;
+}
+
+.offline {
+  background: #80848e;
+}
+
+.username {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.active {
+  background: #404249;
+  color: white;
+}

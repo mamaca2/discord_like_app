@@ -1,4 +1,4 @@
-﻿namespace DiscordApp.Application.DTOs;
+﻿namespace DiscordApp.Application.DTOs.AuthenticationDTOs;
 
 public class RegisteredUserDto
 {

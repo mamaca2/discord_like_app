@@ -1,6 +1,5 @@
-﻿using DiscordApp.Application.DTOs;
+﻿using DiscordApp.Application.DTOs.AuthenticationDTOs;
 using DiscordApp.Application.DTOs.RegistrationDTOs;
-using DiscordApp.Application.Results;
 
 namespace DiscordApp.Application.contracts;
 

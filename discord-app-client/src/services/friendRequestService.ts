@@ -80,3 +80,42 @@ export async function getOutgoingFriendRequests(
 
   return response.json();
 }
+
+export async function acceptFriendRequest(
+  token: string,
+  requestId: number
+): Promise<void> {
+  const response = await fetch(
+    `${CONFIGS.API_BASE_URL}${CONFIGS.ENDPOINTS.FRIEND_REQUESTS.ACCEPT(requestId)}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+}
+
+export async function declineFriendRequest(
+  token: string,
+  requestId: number
+): Promise<void> {
+  const response = await fetch(
+    `${CONFIGS.API_BASE_URL}${CONFIGS.ENDPOINTS.FRIEND_REQUESTS.DECLINE(requestId)}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Failed to decline friend request");
+  }
+}

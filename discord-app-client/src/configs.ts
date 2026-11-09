@@ -19,6 +19,10 @@ export const CONFIGS = {
       SEND: '/friend-requests/send',
       INCOMING: '/friend-requests/incoming',
       OUTGOING: '/friend-requests/outgoing',
+      ACCEPT: (requestId: number) =>
+        `/friend-requests/${requestId}/accept`,
+      DECLINE: (requestId: number) =>
+        `/friend-requests/${requestId}/decline`,
     },
 
     SEARCH: '/users/search',

@@ -19,7 +19,6 @@ export default function FriendsBar({
   return (
     <>
       <button
-        type="button"
         className={styles.addFriendButton}
         onClick={onAddFriend}
       >
@@ -27,25 +26,45 @@ export default function FriendsBar({
       </button>
 
       <button
-        type="button"
         className={styles.friendButton}
         onClick={onShowRequests}
       >
         Friend Requests
       </button>
 
-      <div className={styles.sectionTitle}>DIRECT MESSAGES</div>
-
       {friends.map((friend) => (
         <button
-          type="button"
           key={friend.id}
           className={`${styles.friendButton} ${
             activeFriendId === friend.id ? styles.active : ""
           }`}
           onClick={() => onSelectFriend?.(friend.id)}
         >
-          {friend.username}#{friend.tag}
+          <div className={styles.avatarContainer}>
+            {friend.image ? (
+              <img
+                src={friend.image}
+                alt={friend.username}
+                className={styles.avatar}
+              />
+            ) : (
+              <div className={styles.defaultAvatar}>
+                {friend.username.charAt(0).toUpperCase()}
+              </div>
+            )}
+
+            <span
+              className={`${styles.statusCircle} ${
+                friend.status === "Online"
+                  ? styles.online
+                  : styles.offline
+              }`}
+            />
+          </div>
+
+          <span className={styles.username}>
+            {friend.username}#{friend.tag}
+          </span>
         </button>
       ))}
     </>

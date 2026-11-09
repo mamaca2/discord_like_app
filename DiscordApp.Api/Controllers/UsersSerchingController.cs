@@ -1,4 +1,5 @@
-﻿using DiscordApp.Application.Common.Paging;
+﻿using System.Security.Claims;
+using DiscordApp.Application.Common.Paging;
 using DiscordApp.Application.DTOs.UserFindingDTOs;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.controller;
@@ -17,7 +18,14 @@ public class UsersSearchingController(IUserSearchService userSearchService) : Ba
     public async Task<ActionResult<PagedList<UserSearchDto>>> SearchByUsername(
         [FromQuery] UserSearchQueryParams queryParams)
     {
-        var result = await userSearchService.SearchByUsernameAsync(queryParams);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        var result = await userSearchService.SearchByUsernameAsync(
+            queryParams, userId);
+
         return ToActionResult(result);
     }
 }

@@ -8,9 +8,10 @@ import { SearchBar } from "./components/SearchBar";
 
 import { getUserServers, type ServerDto } from "../services/serverService";
 import { getUserFriends, type FriendDto } from "../services/friendsService";
-import  { getIncomingFriendRequests, type FriendRequestDto } from "../services/friendRequestService";
+import  { acceptFriendRequest, declineFriendRequest, 
+  getIncomingFriendRequests, getOutgoingFriendRequests, type FriendRequestDto } from "../services/friendRequestService";
 
-import styles from "./css/MainPage.module.css";
+import styles from "./css/MainPage.module.css"; 
 import middleStyles from "./css/MiddleBar.module.css";
 import { FriendRequests } from "./components/FriendRequests";
 import Settings from "./components/Settings";
@@ -53,20 +54,30 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
         setIsLoading(true);
         setError(null);
 
-        const [userServers, userFriends, userIncomingFriendRequests] = await Promise.all([
+        const [
+          userServers,
+          userFriends,
+          incoming,
+          outgoing
+        ] = await Promise.all([
           getUserServers(token),
           getUserFriends(token),
           getIncomingFriendRequests(token),
+          getOutgoingFriendRequests(token)
         ]);
 
         if (isMounted) {
           setServers(userServers);
           setFriends(userFriends);
-          setIncomingFriendRequests(userIncomingFriendRequests);
+          setIncomingFriendRequests(incoming);
+          setOutgoingFriendRequests(outgoing);
         }
-      } catch (err) {
+
+      } catch (error) {
         if (isMounted) {
-          setError(err instanceof Error ? err.message : "Failed to load initial data");
+          setError(
+            error instanceof Error ? error.message : "Failed to load data"
+          );
         }
       } finally {
         if (isMounted) {
@@ -97,17 +108,49 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
     setActiveBar("search");
   };
 
-  const handleShowingFriendRequests = () =>{
+  const handleShowingFriendRequests = () => {
     setActiveContent({ type: "friendRequests" });
   };
 
-  const handleServerIconClicked = () =>{
+  const handleServerIconClicked = () => {
     setActiveContent({ type: "settings" });
   };
 
   const appendOutgoingFriendRequests = (request: FriendRequestDto) => {
     console.log("appended");
     setOutgoingFriendRequests((prev) => [...prev, request]);
+  };
+
+  const handleAcceptRequest = async (requestId: number) => {
+    await acceptFriendRequest(token, requestId);
+
+    setIncomingFriendRequests(prev =>
+      prev.filter(request => request.id !== requestId)
+    );
+
+    // Update the friends list
+    try {
+      const updatedFriends = await getUserFriends(token);
+      setFriends(updatedFriends);
+    } catch (error) {
+      console.error("Failed to refresh friends:", error);
+    }
+  };
+
+  const handleDeclineRequest = async (requestId: number) => {
+    await declineFriendRequest(token, requestId);
+
+    setIncomingFriendRequests(prev =>
+      prev.filter(request => request.id !== requestId)
+    );
+  };
+
+  const handleCancelRequest = async (requestId: number) => {
+    await declineFriendRequest(token, requestId);
+
+    setOutgoingFriendRequests(prev =>
+      prev.filter(request => request.id !== requestId)
+    );
   };
 
   // const chatTitle = isPersonalIconClicked
@@ -155,16 +198,23 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
         {activeBar === "search" && (
           <SearchBar
             token={token}
+            friends={friends}
+            incomingRequests={incomingFriendRequests}
+            outgoingRequests={outgoingFriendRequests}
             appendOutgoingFriendRequests={appendOutgoingFriendRequests}
+            onAcceptRequest={handleAcceptRequest}
+            onDeclineRequest={handleDeclineRequest}
+            onCancelRequest={handleCancelRequest}
           />
         )}
       </aside>
 
-      {/*<ChatArea title={chatTitle} />*/}
       {activeContent.type === "friendRequests" && (
         <FriendRequests
           incomingRequests={incomingFriendRequests}
           outgoingRequests={outgoingFriendRequests}
+          onAccept={handleAcceptRequest}
+          onDecline={handleDeclineRequest}
         />
       )}
 

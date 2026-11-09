@@ -13,10 +13,16 @@ public class AppDbContext : IdentityDbContext<User>, IAppDbContext
     }
 
     public DbSet<FriendRequest> FriendRequests { get; set; }
-    public DbSet<PendingRegistration> PendingRegistrations { get; set; } = null!;
+    public DbSet<PendingRegistration> PendingRegistrations { get; set; }
+
     public DbSet<ServerInfo> ServerInfos { get; set; }
-    public DbSet<ServerMember> ServerMembers {get; set;}
-    public DbSet<ServerInvite> ServerInvites {get; set;}
+    public DbSet<ServerMember> ServerMembers { get; set; }
+    public DbSet<ServerInvite> ServerInvites { get; set; }
+
+    public DbSet<DirectMessage> DirectMessages { get; set; }
+
+    public DbSet<ServerChat> ServerChats { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -29,5 +35,33 @@ public class AppDbContext : IdentityDbContext<User>, IAppDbContext
             .HasOne(sm => sm.Server)
             .WithMany(s => s.Members)
             .HasForeignKey(sm => sm.ServerInfoId);
+
+        builder.Entity<ServerChat>()
+            .HasOne(sc => sc.Server)
+            .WithMany(s => s.ServerChats)
+            .HasForeignKey(sc => sc.ServerId);
+
+        builder.Entity<ChatMessage>()
+            .HasOne(cm => cm.ServerChat)
+            .WithMany(sc => sc.ChatMessages)
+            .HasForeignKey(cm => cm.ServerChatId);
+
+        builder.Entity<ChatMessage>()
+            .HasOne(cm => cm.Sender)
+            .WithMany()
+            .HasForeignKey(cm => cm.SenderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<DirectMessage>()
+            .HasOne(dm => dm.Sender)
+            .WithMany()
+            .HasForeignKey(dm => dm.SenderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<DirectMessage>()
+            .HasOne(dm => dm.Receiver)
+            .WithMany()
+            .HasForeignKey(dm => dm.ReceiverId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

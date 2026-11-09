@@ -1,5 +1,5 @@
 ﻿using DiscordApp.Application.contracts;
-using DiscordApp.Application.DTOs;
+using DiscordApp.Application.DTOs.AuthenticationDTOs;
 using DiscordApp.Application.DTOs.RegistrationDTOs;
 using Microsoft.AspNetCore.Mvc;
 

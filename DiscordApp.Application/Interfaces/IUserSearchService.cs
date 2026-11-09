@@ -6,5 +6,5 @@ namespace DiscordApp.Application.Interfaces;
 
 public interface IUserSearchService
 {
-    Task<Result<PagedList<UserSearchDto>>> SearchByUsernameAsync(UserSearchQueryParams queryParams);
+    Task<Result<PagedList<UserSearchDto>>> SearchByUsernameAsync(UserSearchQueryParams queryParams, string sercherId);
 }

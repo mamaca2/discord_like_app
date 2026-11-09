@@ -7,6 +7,7 @@ public class ServerInfo
     public string? Image { get; set; }
     public string OwnerId { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public ICollection<ServerChat> ServerChats { get; set; } = [];
 
     public ICollection<ServerMember> Members { get; set; } = [];
 }

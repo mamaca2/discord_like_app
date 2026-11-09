@@ -1,25 +1,122 @@
 .container {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 24px;
+  background: #313338;
+  color: white;
+  overflow-y: auto;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 28px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #949ba4;
+  margin: 24px 0 12px;
+}
+
+.requestRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+  border-bottom: 1px solid #404249;
+  border-radius: 4px;
+}
+
+.requestRow:hover {
+  background: #35373c;
+}
+
+.avatar,
+.avatarPlaceholder {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.avatar {
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #5865f2;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.userInfo {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
-  padding: 20px;
-  background: #313338;
-  color: white;
-  overflow-y: auto;
+  gap: 3px;
 }
 
-.request {
+.username {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f2f3f5;
+  overflow-wrap: anywhere;
+}
+
+.tag {
+  font-size: 12px;
+  color: #949ba4;
+}
+
+.actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-bottom: 1px solid #404249;
+  gap: 8px;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
+.acceptButton,
+.declineButton {
+  width: 36px;
+  height: 36px;
+  border: none;
   border-radius: 50%;
-  object-fit: cover;
+  cursor: pointer;
+  font-size: 19px;
+  color: white;
+}
+
+.acceptButton {
+  background: #248046;
+}
+
+.acceptButton:hover {
+  background: #1a6334;
+}
+
+.declineButton {
+  background: #42444b;
+}
+
+.declineButton:hover {
+  background: #da373c;
+}
+
+.pendingStatus {
+  font-size: 13px;
+  color: #b5bac1;
+}
+
+.emptyMessage {
+  font-size: 14px;
+  color: #949ba4;
 }

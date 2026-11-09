@@ -5,6 +5,7 @@ using DiscordApp.Application.contracts;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Services;
 using DiscordApp.Application.Services.AuthenticationServices;
+using DiscordApp.Application.Services.ChatServices;
 using DiscordApp.Application.Services.UserSearchServices;
 using DiscordApp.Application.Validators;
 using DiscordApp.Domain.Models;
@@ -186,6 +187,7 @@ builder.Services.AddScoped<IUserSearchService, UserSearchService>();
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IServerService, ServerService>();
 builder.Services.AddScoped<IServerInviteService, ServerInviteService>();
+builder.Services.AddScoped<IDirectMessageService, DirectMessagesService>();
 
 var app = builder.Build();
 

@@ -2,11 +2,9 @@
 using System.Security.Claims;
 using System.Text;
 using DiscordApp.Application.contracts;
-using DiscordApp.Application.DTOs;
+using DiscordApp.Application.DTOs.AuthenticationDTOs;
 using DiscordApp.Application.DTOs.RegistrationDTOs;
 using DiscordApp.Application.Interfaces;
-using DiscordApp.Application.Results;
-using DiscordApp.Domain.Common;
 using DiscordApp.Domain.constants;
 using DiscordApp.Domain.Models;
 using Microsoft.AspNetCore.Identity;
@@ -24,6 +22,15 @@ public class AuthenticationService(
     IEmailSender emailSender,
     IConfiguration configuration) : IAuthenticationService
 {
+/*
+    ==================================================================================
+    ====   =====   ====  =====   ====  =====  ====    ===   =====  =====   ===   ||  |
+    ||  |  ||     ||       ||   ||       ||   ||  |  || ||    ||     ||   || ||  ||| |
+    ====   ====   || ==    ||    ===     ||   ====   =====    ||     ||   || ||  || ||
+    || \   ||     ||  |    ||      ||    ||   || \   || ||    ||     ||   || ||  || ||
+    ||  \  =====   ====  =====  ====     ||   ||  \  || ||    ||   =====   ===   ||  |
+    ==================================================================================
+*/
     public async Task<Result> StartRegistrationAsync(StartRegistrationDto dto)
     {
         var existingUser = await userManager.FindByEmailAsync(dto.Email);
@@ -152,6 +159,15 @@ public class AuthenticationService(
             Role = role
         });
     }
+/*
+    ==========================================================
+        ||         =====      =====     =======    ||   ||
+        ||        ||   ||    ||            ||      |||  ||
+        ||        ||   ||    ||  ===       ||      || | ||
+        ||        ||   ||    ||   ||       ||      ||  |||
+        ||_____    =====      =====     =======    ||   ||
+    ==========================================================
+*/
 
     public async Task<Result<string>> LoginAsync(LoginUserDto dto)
     {
@@ -219,3 +235,5 @@ public class AuthenticationService(
         return null;
     }
 }
+
+
