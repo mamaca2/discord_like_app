@@ -5,5 +5,6 @@ namespace DiscordApp.Application.Interfaces;
 
 public interface IDirectMessageService
 {
-    Task<Result> SendMessage(string senderId, DirectMessageDTO directMessageDto);
+    Task<Result> SendMessageAsync(string senderId, DirectMessageDTO directMessageDto);
+    Task<Result<List<DirectMessageResponseDto>>> GetConversationAsync(string senderId, string receiverId);
 }

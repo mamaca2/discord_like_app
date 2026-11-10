@@ -1,5 +1,5 @@
 export const CONFIGS = {
-  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5187/api',
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || "/api",
   
   ENDPOINTS: {
     AUTH: {
@@ -23,6 +23,10 @@ export const CONFIGS = {
         `/friend-requests/${requestId}/accept`,
       DECLINE: (requestId: number) =>
         `/friend-requests/${requestId}/decline`,
+    },
+    DIRECT_MESSAGES: {
+      GET_CONVERSATION: (friendId: string) =>
+        `/direct-messages/conversation/${friendId}`,
     },
 
     SEARCH: '/users/search',
