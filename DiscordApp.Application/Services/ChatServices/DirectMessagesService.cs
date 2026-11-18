@@ -12,16 +12,24 @@ public class DirectMessagesService(
     UserManager<User> userManager
     ) : IDirectMessageService
 {
-    public async Task<Result> SendMessageAsync(
+    
+    public async Task<Result<DirectMessageResponseDto>> SendMessageAsync(
         string senderId,
         DirectMessageDTO directMessageDto)
     {
+        if (string.IsNullOrWhiteSpace(directMessageDto.Content))
+        {
+            return Result<DirectMessageResponseDto>.BadRequest(
+                new Error(ErrorCodes.BadRequest, "Message cannot be empty.")
+            );
+        }
+
         var senderExists = await dbContext.Users
             .AnyAsync(u => u.Id == senderId);
 
         if (!senderExists)
         {
-            return Result.NotFound(
+            return Result<DirectMessageResponseDto>.NotFound(
                 new Error(ErrorCodes.NotFound, "Sender not found.")
             );
         }
@@ -31,7 +39,7 @@ public class DirectMessagesService(
 
         if (!receiverExists)
         {
-            return Result.NotFound(
+            return Result<DirectMessageResponseDto>.NotFound(
                 new Error(ErrorCodes.NotFound, "Receiver not found.")
             );
         }
@@ -48,9 +56,17 @@ public class DirectMessagesService(
 
         await dbContext.SaveChangesAsync();
 
-        return Result.Success();
+        return Result<DirectMessageResponseDto>.Success(
+            new DirectMessageResponseDto
+            {
+                Id = message.Id,
+                SenderId = message.SenderId,
+                ReceiverId = message.ReceiverId,
+                Content = message.Content,
+                SentAt = message.SentAt
+            }
+        );
     }
-    
     public async Task<Result<List<DirectMessageResponseDto>>> GetConversationAsync(
         string senderId,
         string receiverId)

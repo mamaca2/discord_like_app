@@ -14,23 +14,6 @@ public class DirectMessageController(
     IDirectMessageService messageService
 ) : BaseApiController
 {
-    [HttpPost("send")]
-    public async Task<ActionResult> SendMessage(
-        DirectMessageDTO directMessageDTO)
-    {
-        var senderId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrEmpty(senderId))
-            return Unauthorized();
-
-        var result = await messageService.SendMessageAsync(
-            senderId,
-            directMessageDTO
-        );
-
-        return ToActionResult(result);
-    }
-
     [HttpGet("get-conversation/{friendId}")]
     public async Task<ActionResult<List<DirectMessageResponseDto>>> GetConversation(
         string friendId)

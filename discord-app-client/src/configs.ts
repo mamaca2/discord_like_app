@@ -26,7 +26,7 @@ export const CONFIGS = {
     },
     DIRECT_MESSAGES: {
       GET_CONVERSATION: (friendId: string) =>
-        `/direct-messages/conversation/${friendId}`,
+        `/direct-messages/get-conversation/${friendId}`,
     },
 
     SEARCH: '/users/search',

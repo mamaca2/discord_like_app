@@ -21,6 +21,8 @@ import middleStyles from "./css/MiddleBar.module.css";
 import { FriendRequests } from "./components/FriendRequests";
 import Settings from "./components/Settings";
 
+import * as signalR from "@microsoft/signalr";
+
 interface MainPageProps {
   token: string;
   onLogout: () => void;
@@ -57,6 +59,10 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [connection, setConnection] =
+    useState<signalR.HubConnection | null>(null);
+
+  //fetching data about our friends and friend requests
   useEffect(() => {
     let isMounted = true;
 
@@ -100,6 +106,36 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
 
     return () => {
       isMounted = false;
+    };
+  }, [token]);
+
+  //Connecting with singalR
+  useEffect(() => {
+    let cancelled = false;
+
+    const hub = new signalR.HubConnectionBuilder()
+      .withUrl("/hubs/direct-messages", {
+        accessTokenFactory: () => token
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    const startPromise = hub.start()
+      .then(() => {
+        if (!cancelled) {
+          console.log("SignalR connected");
+          setConnection(hub);
+        }
+      })
+      .catch(error => {
+        if (!cancelled) {
+          console.error("SignalR connection failed:", error);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      void startPromise.then(() => hub.stop());
     };
   }, [token]);
 
@@ -168,7 +204,14 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
   };
 
   const handleSendMessage = async (friendId: string, content: string) => {
-    console.log(friendId, content);
+    if (connection?.state !== signalR.HubConnectionState.Connected) {
+      throw new Error("SignalR is not connected");
+    }
+
+    await connection.invoke("SendMessage", {
+      receiverId: friendId,
+      content: content
+    });
   };
 
   if (isLoading) {
@@ -235,8 +278,10 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
 
       {activeContent.type === "chat" && (
         <ChatArea
+          key={activeContent.friendId}
           friendId={activeContent.friendId}
           token={token}
+          connection={connection}
           onSendMessage={handleSendMessage}
           onProfileClicked={handleSelectFriend}
         />

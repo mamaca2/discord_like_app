@@ -1,6 +1,8 @@
+
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using DiscordApp.Api.Hubs;
 using DiscordApp.Application.contracts;
 using DiscordApp.Application.Interfaces;
 using DiscordApp.Application.Services;
@@ -41,7 +43,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Enter 'Bearer' [space] and then your token. Example: \"Bearer eyJhbGci...\""
+        Description = "Enter 'Bearer' followed by your token."
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -69,7 +71,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// Application layer interacts via IAppDbContext abstraction
 builder.Services.AddScoped<IAppDbContext>(
     sp => sp.GetRequiredService<AppDbContext>());
 
@@ -88,7 +89,8 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -101,7 +103,9 @@ builder.Services
         options.User.RequireUniqueEmail = true;
         options.User.AllowedUserNameCharacters =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+#";
+
         options.SignIn.RequireConfirmedEmail = true;
+
         options.Password.RequiredLength = 8;
         options.Password.RequireDigit = true;
         options.Password.RequireUppercase = true;
@@ -118,43 +122,15 @@ builder.Services
 builder.Services
     .AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultAuthenticateScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+
+        options.DefaultChallengeScheme =
+            JwtBearerDefaults.AuthenticationScheme;
     })
     .AddJwtBearer(options =>
     {
         options.MapInboundClaims = false;
-
-        options.Events = new JwtBearerEvents
-        {
-            OnAuthenticationFailed = context =>
-            {
-                Console.WriteLine("=================================");
-                Console.WriteLine("JWT AUTHENTICATION FAILED");
-                Console.WriteLine(context.Exception.Message);
-                Console.WriteLine("=================================");
-
-                return Task.CompletedTask;
-            },
-
-            OnTokenValidated = context =>
-            {
-                Console.WriteLine("=================================");
-                Console.WriteLine("JWT VALIDATED");
-
-                if (context.Principal?.Claims != null)
-                {
-                    foreach (var claim in context.Principal.Claims)
-                    {
-                        Console.WriteLine($"CLAIM: {claim.Type} = {claim.Value}");
-                    }
-                }
-
-                Console.WriteLine("=================================");
-
-                return Task.CompletedTask;
-            }
-        };
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -169,11 +145,62 @@ builder.Services
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(
                     builder.Configuration["JwtSettings:Key"]
-                    ?? throw new InvalidOperationException("JwtSettings:Key is missing.")
+                    ?? throw new InvalidOperationException(
+                        "JwtSettings:Key is missing.")
                 )
             ),
 
             ClockSkew = TimeSpan.Zero
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken =
+                    context.Request.Query["access_token"].ToString();
+
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/hubs/direct-messages"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            },
+
+            OnAuthenticationFailed = context =>
+            {
+                if (builder.Environment.IsDevelopment())
+                {
+                    Console.WriteLine(
+                        $"JWT AUTHENTICATION FAILED: {context.Exception.Message}");
+                }
+
+                return Task.CompletedTask;
+            },
+
+            OnTokenValidated = context =>
+            {
+                if (context.Principal?.Identity is ClaimsIdentity identity &&
+                    !identity.HasClaim(c =>
+                        c.Type == ClaimTypes.NameIdentifier))
+                {
+                    var userId =
+                        context.Principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                        ?? context.Principal.FindFirst("nameid")?.Value;
+
+                    if (!string.IsNullOrEmpty(userId))
+                    {
+                        identity.AddClaim(
+                            new Claim(ClaimTypes.NameIdentifier, userId));
+                    }
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -189,19 +216,29 @@ builder.Services.AddScoped<IServerService, ServerService>();
 builder.Services.AddScoped<IServerInviteService, ServerInviteService>();
 builder.Services.AddScoped<IDirectMessageService, DirectMessagesService>();
 
+// =============================
+// SignalR
+// =============================
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // =============================
-// Development Middleware (Swagger on Root)
+// Development Middleware
 // =============================
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+
     app.UseSwagger();
+
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "DiscordApp API V1");
-        options.RoutePrefix = string.Empty; // Serves Swagger UI at http://localhost:<port>/
+        options.SwaggerEndpoint(
+            "/swagger/v1/swagger.json",
+            "DiscordApp API V1");
+
+        options.RoutePrefix = string.Empty;
     });
 }
 
@@ -238,6 +275,8 @@ using (var scope = app.Services.CreateScope())
 // =============================
 // HTTP Pipeline Configuration
 // =============================
+app.UseRouting();
+
 app.UseCors("ReactClient");
 
 if (!app.Environment.IsDevelopment())
@@ -247,6 +286,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// =============================
+// Endpoints
+// =============================
 app.MapControllers();
+
+app.MapHub<DirectMessageHub>("/hubs/direct-messages");
 
 app.Run();

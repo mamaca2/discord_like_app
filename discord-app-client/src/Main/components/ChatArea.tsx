@@ -1,14 +1,18 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import type { HubConnection } from "@microsoft/signalr";
+
 import {
   getConversation,
   type DirectMessageResponseDto
 } from "../../services/directMessageService";
+
 import styles from "../css/ChatArea.module.css";
 
 interface ChatAreaProps {
   friendId: string;
   token: string;
+  connection: HubConnection | null;
   onSendMessage: (friendId: string, content: string) => Promise<void>;
   onProfileClicked: (friendId: string) => void;
 }
@@ -16,6 +20,7 @@ interface ChatAreaProps {
 export default function ChatArea({
   friendId,
   token,
+  connection,
   onSendMessage,
   onProfileClicked
 }: ChatAreaProps) {
@@ -36,10 +41,31 @@ export default function ChatArea({
     setError(null);
 
     getConversation(token, friendId)
-      .then(data => {
-        if (!cancelled) {
-          setMessages(data);
-        }
+    .then(data => {
+        if (cancelled) return;
+
+        setMessages(prev => {
+          const combined = new Map<number, DirectMessageResponseDto>();
+
+          data.forEach(message => {
+            combined.set(message.id, message);
+          });
+          prev.forEach(message => {
+            if (
+              message.senderId === friendId ||
+              message.receiverId === friendId
+            ) {
+              combined.set(message.id, message);
+            }
+          });
+
+          return Array.from(combined.values()).sort(
+            (a, b) =>
+              new Date(a.sentAt).getTime() -
+              new Date(b.sentAt).getTime() ||
+              a.id - b.id
+          );
+        });
       })
       .catch(error => {
         if (!cancelled) {
@@ -57,6 +83,38 @@ export default function ChatArea({
       cancelled = true;
     };
   }, [friendId, token]);
+
+  useEffect(() => {
+    if (!connection) return;
+
+    const receiveMessage = (message: DirectMessageResponseDto) => {
+      if (
+        message.senderId !== friendId &&
+        message.receiverId !== friendId
+      ) {
+        return;
+      }
+
+      setMessages(prev => {
+        if (prev.some(m => m.id === message.id)) {
+          return prev;
+        }
+
+        return [...prev, message].sort(
+          (a, b) =>
+            new Date(a.sentAt).getTime() -
+            new Date(b.sentAt).getTime() ||
+            a.id - b.id
+        );
+      });
+    };
+
+    connection.on("ReceiveMessage", receiveMessage);
+
+    return () => {
+      connection.off("ReceiveMessage", receiveMessage);
+    };
+  }, [connection, friendId]);
 
   useEffect(() => {
     const container = messagesRef.current;
@@ -79,12 +137,13 @@ export default function ChatArea({
       await onSendMessage(friendId, content);
       setMessageInput("");
     } catch (error) {
-      console.error(error);
+      console.error("Failed to send message:", error);
     } finally {
       setSending(false);
     }
   };
 
+  
   return (
     <div className={styles.chatArea}>
       <header className={styles.header}>
@@ -93,8 +152,12 @@ export default function ChatArea({
           className={styles.profileButton}
           onClick={() => onProfileClicked(friendId)}
         >
-          <span className={styles.avatar}>DM</span>
-          <span className={styles.headerTitle}>Direct Message</span>
+          <span className={styles.avatar}>F</span>
+
+          <div className={styles.headerInfo}>
+            <span className={styles.headerTitle}>Friend</span>
+            <span className={styles.headerSubtitle}>Direct message</span>
+          </div>
         </button>
       </header>
 
@@ -111,49 +174,59 @@ export default function ChatArea({
             <p>Send your first message below.</p>
           </div>
         ) : (
-          messages.map(message => (
-            <div key={message.id} className={styles.message}>
-              <div className={styles.messageAvatar}>
-                {message.senderId === friendId ? "F" : "Y"}
-              </div>
+          messages.map(message => {
+            const isMine = message.senderId !== friendId;
 
-              <div className={styles.messageBody}>
-                <div className={styles.messageInfo}>
-                  <span className={styles.sender}>
-                    {message.senderId === friendId ? "Friend" : "You"}
-                  </span>
-                  <time className={styles.timestamp}>
+            return (
+              <div
+                key={message.id}
+                className={`${styles.messageRow} ${
+                  isMine ? styles.mine : styles.theirs
+                }`}
+              >
+                {!isMine && (
+                  <div className={styles.messageAvatar}>F</div>
+                )}
+
+                <div className={styles.messageStack}>
+                  <div className={styles.bubble}>
+                    {message.content}
+                  </div>
+
+                  <span className={styles.timestamp}>
                     {new Date(message.sentAt).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit"
                     })}
-                  </time>
+                  </span>
                 </div>
-
-                <p className={styles.content}>{message.content}</p>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
       <div className={styles.composerWrapper}>
-        <form className={styles.messageForm} onSubmit={handleSendMessage}>
+        <form
+          className={styles.messageForm}
+          onSubmit={handleSendMessage}
+        >
           <input
             className={styles.messageInput}
             type="text"
             value={messageInput}
             onChange={event => setMessageInput(event.target.value)}
-            placeholder="Message your friend..."
+            placeholder="Aa"
             aria-label="Message content"
           />
 
           <button
             className={styles.sendButton}
             type="submit"
-            disabled={!messageInput.trim() || sending}
+            disabled={!messageInput.trim() || sending || !connection}
+            aria-label="Send message"
           >
-            {sending ? "Sending..." : "Send"}
+            ➤
           </button>
         </form>
       </div>

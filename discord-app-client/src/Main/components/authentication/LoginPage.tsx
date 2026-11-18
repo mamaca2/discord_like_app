@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { loginUser } from "../services/authService";
-import styles from "./AuthenticationPage.module.css";
+import { loginUser } from "../../../services/authService";
+import styles from "../../css/AuthenticationPage.module.css";
 
 interface AuthenticationPageProps {
   onLoginSuccess: (token: string) => void;
