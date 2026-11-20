@@ -1,41 +1,105 @@
+
 .serverSidebar {
+  width: 72px;
+  min-width: 72px;
+  height: 100%;
+  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  width: 72px;
-  height: 100%;
-  flex-shrink: 0;
-  background: #1a1a1d;
-  padding: 12px 8px;
-  box-sizing: border-box;
-  overflow-y: auto;
+
+  padding: 12px 10px;
+  background: #1e1f22;
+
+  position: relative;
+  z-index: 100;
+  overflow: visible;
 }
 
+/* Server icons */
+
 .friendsIcon,
-.serverIcon {
+.serverIcon,
+.settingsIcon {
   width: 48px;
   height: 48px;
+  min-height: 48px;
   flex-shrink: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #313338;
-  color: white;
+
   border: none;
   border-radius: 50%;
+  background: #313338;
+  color: #dbdee1;
+
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 16px;
-  transition: border-radius 0.2s, background 0.2s;
+
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+
+  transition:
+    background-color 0.2s ease,
+    border-radius 0.2s ease,
+    color 0.2s ease;
 }
 
 .friendsIcon:hover,
 .serverIcon:hover,
+.settingsIcon:hover {
+  border-radius: 16px;
+  background: #5865f2;
+  color: white;
+}
+
+.friendsIcon:focus-visible,
+.serverIcon:focus-visible,
+.settingsIcon:focus-visible {
+  outline: 2px solid #949cf7;
+  outline-offset: 3px;
+}
+
+/* Active server */
+
 .activeTab,
 .activeServer {
-  background: #5865f2;
   border-radius: 16px;
+  background: #5865f2;
+  color: white;
 }
+
+.activeTab::before,
+.activeServer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 28px;
+  background: white;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Divider */
+
+.separator {
+  width: 32px;
+  height: 2px;
+  flex-shrink: 0;
+  background: #35363c;
+  border-radius: 2px;
+  margin: 0 0 2px;
+}
+
+/* Uploaded server images */
 
 .serverImage {
   width: 100%;
@@ -44,33 +108,211 @@
   border-radius: inherit;
 }
 
-.separator {
-  width: 32px;
-  height: 2px;
-  background: #35363c;
+/* Add server */
+
+.addServerWrapper {
+  position: relative;
   flex-shrink: 0;
 }
 
-.serverSidebar::-webkit-scrollbar {
-  display: none;
+.addServerIcon {
+  background: #313338;
+  color: #23a559;
 }
+
+.addServerIcon:hover {
+  background: #23a559;
+  color: white;
+  border-radius: 16px;
+}
+
+/* Settings stays at the bottom */
 
 .settingsIcon {
   margin-top: auto;
-  width: 48px;
-  height: 48px;
-  flex-shrink: 0;
+  color: #b5bac1;
+}
+
+/* Create server popup */
+
+.createServerPopup {
+  position: fixed;
+  left: 84px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 290px;
+  max-height: calc(100dvh - 24px);
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  padding: 20px;
+  background: #2b2d31;
+  border: 1px solid #41434a;
+  border-radius: 14px;
+
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.createServerPopup h3 {
+  margin: 0;
+  color: #f2f3f5;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Image picker */
+
+.imageSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  padding: 10px 0;
+}
+
+.imagePreview {
+  width: 90px;
+  height: 90px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #313338;
-  color: white;
-  border: none;
+
+  background: #404249;
+  border: 2px dashed #72767d;
   border-radius: 50%;
+
+  color: #dbdee1;
+  overflow: hidden;
+}
+
+.imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.createServerPopup .uploadButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 16px;
+  background: #5865f2;
+  color: white;
+
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.createServerPopup .uploadButton:hover {
+  background: #4752c4;
+}
+
+.createServerPopup .uploadButton:focus-within {
+  outline: 2px solid #949cf7;
+  outline-offset: 3px;
+}
+
+.defaultButton {
+  border: none;
+  background: transparent;
+  color: #b5bac1;
+
+  font-size: 13px;
   cursor: pointer;
 }
 
-.settingsIcon:hover {
+.defaultButton:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+/* Server name */
+
+.createServerPopup > label {
+  color: #b5bac1;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.createServerPopup > input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 42px;
+
+  padding: 0 12px;
+  background: #1e1f22;
+  color: white;
+
+  border: 1px solid transparent;
+  border-radius: 6px;
+  outline: none;
+
+  font-size: 14px;
+}
+
+.createServerPopup > input:focus {
+  border-color: #5865f2;
+}
+
+.createServerPopup > input::placeholder {
+  color: #80848e;
+}
+
+/* Popup buttons */
+
+.popupActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.popupActions button {
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.popupActions button:first-child {
+  color: #dbdee1;
+  background: #404249;
+}
+
+.popupActions button:first-child:hover {
+  background: #4e5058;
+}
+
+.popupActions button:last-child {
   background: #5865f2;
-  border-radius: 16px;
+  color: white;
+}
+
+.popupActions button:last-child:hover:not(:disabled) {
+  background: #4752c4;
+}
+
+.popupActions button:last-child:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }

@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { HubConnection } from "@microsoft/signalr";
 
@@ -142,7 +141,6 @@ export default function ChatArea({
       setSending(false);
     }
   };
-
   
   return (
     <div className={styles.chatArea}>

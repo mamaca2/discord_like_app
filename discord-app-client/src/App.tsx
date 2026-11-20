@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import LoginPage from './main/components/authentication/LoginPage'
 import RegisterPage from './main/components/authentication/RegisterPage'
-import MainPage from './main/MainPage' 
+import MainPage from './main/components/MainPage' 
 
 function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'))

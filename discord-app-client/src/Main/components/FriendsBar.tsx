@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { FriendDto } from "../../services/friendsService";
 import styles from "../css/FriendsBar.module.css";
 
@@ -16,6 +17,8 @@ export default function FriendsBar({
   onAddFriend,
   onShowRequests,
 }: FriendsBarProps) {
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+
   return (
     <>
       <button
@@ -32,41 +35,52 @@ export default function FriendsBar({
         Friend Requests
       </button>
 
-      {friends.map((friend) => (
-        <button
-          key={friend.id}
-          className={`${styles.friendButton} ${
-            activeFriendId === friend.id ? styles.active : ""
-          }`}
-          onClick={() => onSelectFriend?.(friend.id)}
-        >
-          <div className={styles.avatarContainer}>
-            {friend.image ? (
-              <img
-                src={friend.image}
-                alt={friend.username}
-                className={styles.avatar}
+      {friends.map((friend) => {
+        const showDefaultAvatar =
+          !friend.image || imageErrors[friend.id];
+
+        return (
+          <button
+            key={friend.id}
+            className={`${styles.friendButton} ${
+              activeFriendId === friend.id ? styles.active : ""
+            }`}
+            onClick={() => onSelectFriend?.(friend.id)}
+          >
+            <div className={styles.avatarContainer}>
+              {showDefaultAvatar ? (
+                <div className={styles.defaultAvatar}>
+                  {friend.userName.charAt(0).toUpperCase()}
+                </div>
+              ) : (
+                <img
+                  src={friend.image}
+                  alt={friend.userName}
+                  className={styles.avatar}
+                  onError={() =>
+                    setImageErrors((prev) => ({
+                      ...prev,
+                      [friend.id]: true,
+                    }))
+                  }
+                />
+              )}
+
+              <span
+                className={`${styles.statusCircle} ${
+                  friend.status === "Online"
+                    ? styles.online
+                    : styles.offline
+                }`}
               />
-            ) : (
-              <div className={styles.defaultAvatar}>
-                {friend.username.charAt(0).toUpperCase()}
-              </div>
-            )}
+            </div>
 
-            <span
-              className={`${styles.statusCircle} ${
-                friend.status === "Online"
-                  ? styles.online
-                  : styles.offline
-              }`}
-            />
-          </div>
-
-          <span className={styles.username}>
-            {friend.username}#{friend.tag}
-          </span>
-        </button>
-      ))}
+            <span className={styles.username}>
+              {friend.userName}
+            </span>
+          </button>
+        );
+      })}
     </>
   );
 }

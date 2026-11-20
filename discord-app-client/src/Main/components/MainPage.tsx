@@ -1,25 +1,24 @@
-
 import { useState, useEffect } from "react";
 
-import { ServerList } from "./components/ServerList";
-import FriendsBar from "./components/FriendsBar";
-import ChatArea from "./components/ChatArea";
-import { SearchBar } from "./components/SearchBar";
+import { ServerList } from "./ServerList";
+import FriendsBar from "./FriendsBar";
+import ChatArea from "./ChatArea";
+import { SearchBar } from "./SearchBar";
 
-import { getUserServers, type ServerDto } from "../services/serverService";
-import { getUserFriends, type FriendDto } from "../services/friendsService";
+import { getUserServers, createServer, type ServerDto } from "../../services/serverService";
+import { getUserFriends, type FriendDto } from "../../services/friendsService";
 import {
   acceptFriendRequest,
   declineFriendRequest,
   getIncomingFriendRequests,
   getOutgoingFriendRequests,
   type FriendRequestDto
-} from "../services/friendRequestService";
+} from "../../services/friendRequestService";
 
-import styles from "./css/MainPage.module.css";
-import middleStyles from "./css/MiddleBar.module.css";
-import { FriendRequests } from "./components/FriendRequests";
-import Settings from "./components/Settings";
+import styles from "../css/MainPage.module.css";
+import middleStyles from "../css/MiddleBar.module.css";
+import { FriendRequests } from "./FriendRequests";
+import Settings from "./Settings";
 
 import * as signalR from "@microsoft/signalr";
 
@@ -203,6 +202,16 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
     );
   };
 
+  const handleAddServer = async (name: string, image: File | null) => {
+    try {
+      const serverDto = await createServer(token, name, image);
+
+      setServers(prev => [...prev, serverDto]);
+    } catch (error) {
+      console.error("Failed to create server:", error);
+    }
+  };
+
   const handleSendMessage = async (friendId: string, content: string) => {
     if (connection?.state !== signalR.HubConnectionState.Connected) {
       throw new Error("SignalR is not connected");
@@ -213,6 +222,7 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
       content: content
     });
   };
+
 
   if (isLoading) {
     return <div className={styles.container}>Loading...</div>;
@@ -236,6 +246,7 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
         onSelectFriends={handleSelectFriends}
         onSelectServer={handleSelectServer}
         onSettingsClick={handleServerIconClicked}
+        onAddServer={handleAddServer}
       />
 
       <aside className={middleStyles.middleBar}>

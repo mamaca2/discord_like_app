@@ -4,7 +4,7 @@ export type UserStatus = "Online" | "Offline";
 
 export interface FriendDto {
   id: string;
-  username: string;
+  userName: string;
   tag: string;
   image?: string;
   status: UserStatus;

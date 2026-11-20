@@ -14,7 +14,7 @@ namespace DiscordApp.Api.Controllers;
 public class ServersController(IServerService serverService) : BaseApiController
 {
     [HttpPost]
-    public async Task<ActionResult<ServerDto>> CreateServer([FromBody] CreateServerDto createServerDto)
+    public async Task<ActionResult<ServerDto>> CreateServer([FromForm] CreateServerDto createServerDto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))

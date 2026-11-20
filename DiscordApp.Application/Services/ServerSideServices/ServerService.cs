@@ -5,12 +5,17 @@ using DiscordApp.Domain.Common;
 using DiscordApp.Domain.constants;
 using DiscordApp.Domain.Enums;
 using DiscordApp.Domain.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace DiscordApp.Application.Services;
 
-public class ServerService(IAppDbContext dbContext) : IServerService
+public class ServerService(    
+    IAppDbContext dbContext,
+    IWebHostEnvironment environment
+) : IServerService
 {
+
     public async Task<Result<ServerDto>> CreateServerAsync(string userId, CreateServerDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Name))
@@ -19,10 +24,49 @@ public class ServerService(IAppDbContext dbContext) : IServerService
                 new Error("InvalidInput", "Server name cannot be empty."));
         }
 
+        string? imagePath = null;
+
+        if (dto.Image != null && dto.Image.Length > 0)
+        {
+            if (dto.Image.Length > 5 * 1024 * 1024)
+            {
+                return Result<ServerDto>.BadRequest(
+                    new Error("InvalidInput", "Image cannot exceed 5 MB."));
+            }
+
+            var extension = Path.GetExtension(dto.Image.FileName).ToLowerInvariant();
+
+            if (extension != ".png" &&
+                extension != ".jpg" &&
+                extension != ".jpeg" &&
+                extension != ".webp")
+            {
+                return Result<ServerDto>.BadRequest(
+                    new Error("InvalidInput", "Unsupported image format."));
+            }
+
+            var webRoot = environment.WebRootPath
+                ?? Path.Combine(environment.ContentRootPath, "wwwroot");
+
+            var folder = Path.Combine(webRoot, "uploads", "servers");
+
+            Directory.CreateDirectory(folder);
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(folder, fileName);
+            
+            await using (var stream = new FileStream(filePath, FileMode.CreateNew))
+            {
+                await dto.Image.CopyToAsync(stream);
+            }
+
+            imagePath = $"/uploads/servers/{fileName}";
+        }
+
         var server = new ServerInfo
         {
             Name = dto.Name,
-            Image = dto.Image,
+            Image = imagePath,
             OwnerId = userId
         };
 
@@ -35,6 +79,7 @@ public class ServerService(IAppDbContext dbContext) : IServerService
 
         dbContext.ServerInfos.Add(server);
         dbContext.ServerMembers.Add(ownerMember);
+
         await dbContext.SaveChangesAsync();
 
         var response = new ServerDto

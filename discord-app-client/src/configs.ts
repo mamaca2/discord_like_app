@@ -11,6 +11,7 @@ export const CONFIGS = {
     SERVERS: {
       USER_SERVERS: '/servers/user-servers',
       JOIN: (code: string) => `/servers/join/${code}`,
+      CREATE: '/servers'
     },
     FRIENDS: {
       BASE: '/friends'
