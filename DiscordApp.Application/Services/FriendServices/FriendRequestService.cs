@@ -2,20 +2,12 @@
 using DiscordApp.Application.DTOs.FriendRequestDTO;
 using DiscordApp.Application.DTOs.FriendRequestDTOs;
 using DiscordApp.Application.Interfaces;
-using DiscordApp.Application.Results;
-using DiscordApp.Domain.Common;
-using DiscordApp.Domain.constants;
 using DiscordApp.Domain.Enums;
 using DiscordApp.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DiscordApp.Application.Services;
-
 
 public class FriendRequestService(
     IAppDbContext dbContext,
@@ -29,11 +21,11 @@ public class FriendRequestService(
 
         if (request is null)
             return Result.NotFound(
-                new Error(ErrorCodes.NotFound, "Friend request not found or you are not authorized to accept it."));
+                FriendRequestErrors.RequestNotFoundOrUnauthorized);
 
         if (request.Status != FriendRequestStatus.Pending)
             return Result.BadRequest(
-                new Error(ErrorCodes.BadRequest, "Only pending friend requests can be accepted."));
+                FriendRequestErrors.NotPending);
 
         request.Status = FriendRequestStatus.Accepted;
         request.RespondedAt = DateTime.UtcNow;
@@ -50,11 +42,11 @@ public class FriendRequestService(
 
         if (request is null)
             return Result.NotFound(
-                new Error(ErrorCodes.NotFound, "Friend request not found."));
+                FriendRequestErrors.RequestNotFound);
 
         if (request.ReceiverId != userId && request.SenderId != userId)
             return Result.BadRequest(
-                new Error(ErrorCodes.BadRequest, "You are not authorized to decline this friend request."));
+                FriendRequestErrors.NotAuthorizedToDecline);
 
         dbContext.FriendRequests.Remove(request);
         await dbContext.SaveChangesAsync();
@@ -65,9 +57,10 @@ public class FriendRequestService(
     public async Task<Result<List<FriendRequestDto>>> GetIncomingPendingRequestsAsync(string userId)
     {
         var receiver = await userManager.FindByIdAsync(userId);
+
         if (receiver is null)
             return Result<List<FriendRequestDto>>.NotFound(
-                new Error(ErrorCodes.NotFound, "User not found."));
+                FriendRequestErrors.UserNotFound);
 
         var requests = await dbContext.FriendRequests
             .Where(fr => fr.ReceiverId == userId && fr.Status == FriendRequestStatus.Pending)
@@ -99,9 +92,10 @@ public class FriendRequestService(
     public async Task<Result<List<FriendRequestDto>>> GetOutgoingPendingRequestsAsync(string userId)
     {
         var sender = await userManager.FindByIdAsync(userId);
+
         if (sender is null)
             return Result<List<FriendRequestDto>>.NotFound(
-                new Error(ErrorCodes.NotFound, "User not found."));
+                FriendRequestErrors.UserNotFound);
 
         var requests = await dbContext.FriendRequests
             .Where(fr => fr.SenderId == userId && fr.Status == FriendRequestStatus.Pending)
@@ -134,13 +128,15 @@ public class FriendRequestService(
     {
         if (senderId == dto.ReceiverId)
             return Result<FriendRequestDto>.BadRequest(
-                new Error(ErrorCodes.BadRequest, "You cannot send a friend request to yourself."));
+                FriendRequestErrors.CannotRequestYourself);
 
         var receiver = await userManager.FindByIdAsync(dto.ReceiverId);
         Console.WriteLine($"receiver is null: {receiver is null}");
+
         if (receiver is null)
             return Result<FriendRequestDto>.NotFound(
-                new Error(ErrorCodes.NotFound, "Receiver not found."));
+                FriendRequestErrors.ReceiverNotFound);
+
         // Check bi-directional relationship status
         var existingRelationship = await dbContext.FriendRequests
             .FirstOrDefaultAsync(fr =>
@@ -151,24 +147,22 @@ public class FriendRequestService(
         {
             if (existingRelationship.Status == FriendRequestStatus.Accepted)
                 return Result<FriendRequestDto>.BadRequest(
-                    new Error(ErrorCodes.BadRequest, "You are already friends with this user."));
+                    FriendRequestErrors.AlreadyFriends);
 
             if (existingRelationship.Status == FriendRequestStatus.Pending)
             {
-                string message = existingRelationship.SenderId == senderId
-                    ? "A pending friend request has already been sent to this user."
-                    : "This user has already sent you a friend request. Accept their request instead.";
-
                 return Result<FriendRequestDto>.BadRequest(
-                    new Error(ErrorCodes.BadRequest, message));
+                    existingRelationship.SenderId == senderId
+                        ? FriendRequestErrors.AlreadySent
+                        : FriendRequestErrors.IncomingRequestExists);
             }
         }
 
         var sender = await userManager.FindByIdAsync(senderId);
-                
+
         if (sender is null)
             return Result<FriendRequestDto>.NotFound(
-                new Error(ErrorCodes.NotFound, "Sender not found."));
+                FriendRequestErrors.SenderNotFound);
 
         var request = new FriendRequest
         {

@@ -1,6 +1,8 @@
-﻿using DiscordApp.Application.contracts;
+﻿
+using DiscordApp.Application.contracts;
 using DiscordApp.Application.DTOs.FriendDTOs;
 using DiscordApp.Application.Interfaces;
+using DiscordApp.Domain.Constants;
 using DiscordApp.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,10 +49,7 @@ public class FriendsService(IAppDbContext appDbContext) : IFriendsService
 
         if (friendship is null)
         {
-            return Result.NotFound(
-                new Error(
-                    "Friends.NotFound",
-                    "Friendship relationship not found."));
+            return Result.NotFound(FriendsErrors.FriendshipNotFound);
         }
 
         appDbContext.FriendRequests.Remove(friendship);

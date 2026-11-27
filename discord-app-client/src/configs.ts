@@ -11,7 +11,13 @@ export const CONFIGS = {
     SERVERS: {
       USER_SERVERS: '/servers/user-servers',
       JOIN: (code: string) => `/servers/join/${code}`,
-      CREATE: '/servers'
+      CREATE: '/servers',
+      CREATE_CHAT: (serverId: number) => `/servers/${serverId}/create-chat`,
+      GET_CHATS: (serverId: number) => `/servers/${serverId}/get-chats`,
+      GET_CHAT_MESSAGES: (serverId: number, chatId: number) =>
+        `/servers/${serverId}/chats/${chatId}/messages`,
+      INVITE: (serverId: number, friendId: string) =>
+        `/servers/${serverId}/invite-friend/${encodeURIComponent(friendId)}`
     },
     FRIENDS: {
       BASE: '/friends'

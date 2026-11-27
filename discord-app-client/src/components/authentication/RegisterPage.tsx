@@ -3,9 +3,9 @@ import {
   startRegistration,
   verifyCode,
   completeRegistration,
-} from "../../../services/authService";
+} from "../../services/authService";
 import styles from "../../css/AuthenticationPage.module.css";
-import { TEXTS } from "../../../constants/Texts";
+import { TEXTS } from "../../constants/Texts";
 
 interface RegisterPageProps {
   onBackToLogin: () => void;

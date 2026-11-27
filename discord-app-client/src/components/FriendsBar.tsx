@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FriendDto } from "../../services/friendsService";
+import type { FriendDto } from "../services/friendsService";
 import styles from "../css/FriendsBar.module.css";
 
 interface FriendsBarProps {

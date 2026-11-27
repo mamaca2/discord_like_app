@@ -1,6 +1,6 @@
 namespace DiscordApp.Domain.Models;
 
-public class ChatMessage
+public class ServerChatMessage
 {
     public int Id { get; set; }
 

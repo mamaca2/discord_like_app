@@ -1,0 +1,50 @@
+.composerContainer {
+  padding: 12px 20px 20px;
+  background: #313338;
+  flex-shrink: 0;
+}
+
+.messageForm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  box-sizing: border-box;
+  background: #383a40;
+  border-radius: 10px;
+}
+
+.messageInput {
+  flex: 1;
+  min-width: 0;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 14px;
+}
+
+.messageInput::placeholder {
+  color: #949ba4;
+}
+
+.sendButton {
+  padding: 9px 16px;
+  background: #5865f2;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sendButton:hover:not(:disabled) {
+  background: #4752c4;
+}
+
+.sendButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

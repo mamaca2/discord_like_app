@@ -9,5 +9,5 @@ public class ServerChat
     public int ServerId { get; set; }
     public ServerInfo Server { get; set; } = null!;
 
-    public ICollection<ChatMessage> ChatMessages { get; set; } = [];
+    public ICollection<ServerChatMessage> ChatMessages { get; set; } = [];
 }

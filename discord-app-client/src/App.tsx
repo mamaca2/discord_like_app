@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import './App.css'
-import LoginPage from './main/components/authentication/LoginPage'
-import RegisterPage from './main/components/authentication/RegisterPage'
-import MainPage from './main/components/MainPage' 
+import LoginPage from './components/authentication/LoginPage'
+import RegisterPage from './components/authentication/RegisterPage'
+import MainPage from './components/MainPage' 
 
 function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'))

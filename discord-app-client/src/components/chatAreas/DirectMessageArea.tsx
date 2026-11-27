@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+
+import { useEffect, useRef, useState } from "react";
 import type { HubConnection } from "@microsoft/signalr";
 
 import {
@@ -6,9 +7,12 @@ import {
   type DirectMessageResponseDto
 } from "../../services/directMessageService";
 
-import styles from "../css/ChatArea.module.css";
+import MessageInput from "./MessageInput";
+import MessageList from "./MessageList";
 
-interface ChatAreaProps {
+import styles from "../../css/chatAreaCss/ChatArea.module.css";
+
+interface DirectMessageAreaProps {
   friendId: string;
   token: string;
   connection: HubConnection | null;
@@ -16,18 +20,16 @@ interface ChatAreaProps {
   onProfileClicked: (friendId: string) => void;
 }
 
-export default function ChatArea({
+export default function DirectMessageArea({
   friendId,
   token,
   connection,
   onSendMessage,
   onProfileClicked
-}: ChatAreaProps) {
+}: DirectMessageAreaProps) {
   const [messages, setMessages] = useState<DirectMessageResponseDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [messageInput, setMessageInput] = useState("");
-  const [sending, setSending] = useState(false);
 
   const messagesRef = useRef<HTMLDivElement>(null);
 
@@ -35,12 +37,11 @@ export default function ChatArea({
     let cancelled = false;
 
     setMessages([]);
-    setMessageInput("");
     setLoading(true);
     setError(null);
 
     getConversation(token, friendId)
-    .then(data => {
+      .then(data => {
         if (cancelled) return;
 
         setMessages(prev => {
@@ -49,6 +50,7 @@ export default function ChatArea({
           data.forEach(message => {
             combined.set(message.id, message);
           });
+
           prev.forEach(message => {
             if (
               message.senderId === friendId ||
@@ -123,25 +125,10 @@ export default function ChatArea({
     }
   }, [messages, loading]);
 
-  const handleSendMessage = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const content = messageInput.trim();
-
-    if (!content || sending) return;
-
-    setSending(true);
-
-    try {
-      await onSendMessage(friendId, content);
-      setMessageInput("");
-    } catch (error) {
-      console.error("Failed to send message:", error);
-    } finally {
-      setSending(false);
-    }
+  const handleSendMessage = async (content: string) => {
+    await onSendMessage(friendId, content);
   };
-  
+
   return (
     <div className={styles.chatArea}>
       <header className={styles.header}>
@@ -165,69 +152,33 @@ export default function ChatArea({
             Loading conversation...
           </div>
         ) : error ? (
-          <div className={styles.stateText}>{error}</div>
+          <div className={styles.stateText}>
+            {error}
+          </div>
         ) : messages.length === 0 ? (
           <div className={styles.emptyState}>
             <h3>Start a conversation</h3>
             <p>Send your first message below.</p>
           </div>
         ) : (
-          messages.map(message => {
-            const isMine = message.senderId !== friendId;
-
-            return (
-              <div
-                key={message.id}
-                className={`${styles.messageRow} ${
-                  isMine ? styles.mine : styles.theirs
-                }`}
-              >
-                {!isMine && (
-                  <div className={styles.messageAvatar}>F</div>
-                )}
-
-                <div className={styles.messageStack}>
-                  <div className={styles.bubble}>
-                    {message.content}
-                  </div>
-
-                  <span className={styles.timestamp}>
-                    {new Date(message.sentAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit"
-                    })}
-                  </span>
-                </div>
-              </div>
-            );
-          })
+          <MessageList
+            showAvatar
+            messages={messages.map(message => ({
+              id: message.id,
+              content: message.content,
+              isMine: message.senderId !== friendId,
+              sentAt: message.sentAt
+            }))}
+          />
         )}
       </div>
 
-      <div className={styles.composerWrapper}>
-        <form
-          className={styles.messageForm}
-          onSubmit={handleSendMessage}
-        >
-          <input
-            className={styles.messageInput}
-            type="text"
-            value={messageInput}
-            onChange={event => setMessageInput(event.target.value)}
-            placeholder="Aa"
-            aria-label="Message content"
-          />
-
-          <button
-            className={styles.sendButton}
-            type="submit"
-            disabled={!messageInput.trim() || sending || !connection}
-            aria-label="Send message"
-          >
-            ➤
-          </button>
-        </form>
-      </div>
+      <MessageInput
+        key={friendId}
+        placeholder="Aa"
+        onSendMessage={handleSendMessage}
+        disabled={!connection}
+      />
     </div>
   );
 }

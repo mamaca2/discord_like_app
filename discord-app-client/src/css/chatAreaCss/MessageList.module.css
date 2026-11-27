@@ -1,0 +1,79 @@
+.messageList {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  min-height: 100%;
+  flex-shrink: 0;
+}
+
+.messageRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+.mine {
+  justify-content: flex-end;
+}
+
+.theirs {
+  justify-content: flex-start;
+}
+
+.messageAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #5865f2;
+  color: white;
+  font-size: 12px;
+}
+
+.messageStack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 70%;
+}
+
+.mine .messageStack {
+  align-items: flex-end;
+}
+
+.theirs .messageStack {
+  align-items: flex-start;
+}
+
+.bubble {
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.mine .bubble {
+  background: #0084ff;
+  color: white;
+  border-bottom-right-radius: 5px;
+}
+
+.theirs .bubble {
+  background: #3a3b3c;
+  color: #f2f3f5;
+  border-bottom-left-radius: 5px;
+}
+
+.timestamp {
+  font-size: 10px;
+  color: #8a8d91;
+  padding: 0 5px;
+}

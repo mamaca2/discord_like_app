@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { loginUser } from "../../../services/authService";
+import { loginUser } from "../../services/authService";
 import styles from "../../css/AuthenticationPage.module.css";
 
 interface AuthenticationPageProps {

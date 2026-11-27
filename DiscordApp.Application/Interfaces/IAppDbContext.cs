@@ -17,7 +17,7 @@ public interface IAppDbContext
     DbSet<DirectMessage> DirectMessages { get; }
 
     DbSet<ServerChat> ServerChats { get; }
-    DbSet<ChatMessage> ChatMessages { get; }
+    DbSet<ServerChatMessage> ServerChatMessages { get; }
 
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);

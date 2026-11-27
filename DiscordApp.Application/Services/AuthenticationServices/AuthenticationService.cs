@@ -1,11 +1,12 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using DiscordApp.Application.contracts;
 using DiscordApp.Application.DTOs.AuthenticationDTOs;
 using DiscordApp.Application.DTOs.RegistrationDTOs;
 using DiscordApp.Application.Interfaces;
-using DiscordApp.Domain.constants;
+using DiscordApp.Domain.Constants;
 using DiscordApp.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,7 @@ public class AuthenticationService(
     {
         var existingUser = await userManager.FindByEmailAsync(dto.Email);
         if (existingUser is not null)
-            return Result.BadRequest(new Error(ErrorCodes.BadRequest, "Email is already registered."));
+            return Result.BadRequest(AuthenticationErrors.EmailAlreadyRegistered);
 
         var existingPending = await dbContext.PendingRegistrations
             .Where(p => p.Email == dto.Email)
@@ -73,13 +74,13 @@ public class AuthenticationService(
             .FirstOrDefaultAsync();
 
         if (pending is null)
-            return Result.NotFound(new Error(ErrorCodes.NotFound, "No pending registration found for this email."));
+            return Result.NotFound(AuthenticationErrors.PendingRegistrationNotFoundForEmail);
 
         if (pending.ExpiresAt < DateTime.UtcNow)
-            return Result.BadRequest(new Error(ErrorCodes.BadRequest, "Code has expired."));
+            return Result.BadRequest(AuthenticationErrors.VerificationCodeExpired);
 
         if (pending.Code != dto.Code)
-            return Result.BadRequest(new Error(ErrorCodes.BadRequest, "Incorrect code."));
+            return Result.BadRequest(AuthenticationErrors.IncorrectVerificationCode);
 
         pending.IsVerified = true;
         await dbContext.SaveChangesAsync();
@@ -95,18 +96,22 @@ public class AuthenticationService(
             .FirstOrDefaultAsync();
 
         if (pending is null)
-            return Result<RegisteredUserDto>.NotFound(new Error(ErrorCodes.NotFound, "No pending registration found."));
+            return Result<RegisteredUserDto>.NotFound(
+                AuthenticationErrors.PendingRegistrationNotFound);
 
         if (!pending.IsVerified)
-            return Result<RegisteredUserDto>.BadRequest(new Error(ErrorCodes.BadRequest, "Email not verified yet."));
+            return Result<RegisteredUserDto>.BadRequest(
+                AuthenticationErrors.EmailNotVerified);
 
         if (pending.ExpiresAt < DateTime.UtcNow)
-            return Result<RegisteredUserDto>.BadRequest(new Error(ErrorCodes.BadRequest, "Registration session expired. Please start again."));
+            return Result<RegisteredUserDto>.BadRequest(
+                AuthenticationErrors.RegistrationSessionExpired);
 
         var generatedTag = await GenerateUniqueTagAsync(dto.Username);
         if (generatedTag is null)
-            return Result<RegisteredUserDto>.BadRequest(new Error(ErrorCodes.BadRequest, "All tags for this username are taken."));
-   
+            return Result<RegisteredUserDto>.BadRequest(
+                AuthenticationErrors.UsernameTagsExhausted);
+
         var user = new User
         {
             Id = Guid.NewGuid().ToString(),
@@ -129,13 +134,16 @@ public class AuthenticationService(
         catch (Exception ex)
         {
             return Result<RegisteredUserDto>.BadRequest(
-                new Error(ErrorCodes.BadRequest, $"Database user creation failed: {ex.InnerException?.Message ?? ex.Message}"));
+                AuthenticationErrors.DatabaseUserCreationFailed(
+                    ex.InnerException?.Message ?? ex.Message));
         }
 
         if (!createResult.Succeeded)
         {
             var error = string.Join(", ", createResult.Errors.Select(e => e.Description));
-            return Result<RegisteredUserDto>.BadRequest(new Error(ErrorCodes.BadRequest, error));
+
+            return Result<RegisteredUserDto>.BadRequest(
+                AuthenticationErrors.UserCreationFailed(error));
         }
 
         var role = string.IsNullOrWhiteSpace(dto.Role) ? "User" : dto.Role;
@@ -164,7 +172,7 @@ public class AuthenticationService(
         ||         =====      =====     =======    ||   ||
         ||        ||   ||    ||            ||      |||  ||
         ||        ||   ||    ||  ===       ||      || | ||
-        ||        ||   ||    ||   ||       ||      ||  |||
+        ||        ||   ||    ||   ||       ||  |||
         ||_____    =====      =====     =======    ||   ||
     ==========================================================
 */
@@ -173,11 +181,11 @@ public class AuthenticationService(
     {
         var user = await userManager.FindByEmailAsync(dto.Email);
         if (user is null)
-            return Result<string>.Failure(new Error(ErrorCodes.BadRequest, "Invalid credentials."));
+            return Result<string>.Failure(AuthenticationErrors.InvalidCredentials);
 
         var valid = await userManager.CheckPasswordAsync(user, dto.Password);
         if (!valid)
-            return Result<string>.Failure(new Error(ErrorCodes.BadRequest, "Invalid credentials."));
+            return Result<string>.Failure(AuthenticationErrors.InvalidCredentials);
 
         var token = await GenerateToken(user);
         return Result<string>.Success(token);
@@ -235,5 +243,3 @@ public class AuthenticationService(
         return null;
     }
 }
-
-

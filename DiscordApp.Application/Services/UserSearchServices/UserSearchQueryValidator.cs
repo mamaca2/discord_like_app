@@ -1,8 +1,4 @@
-﻿using DiscordApp.Application.Results;
-using DiscordApp.Domain.Common;
-using DiscordApp.Domain.constants;
-
-namespace DiscordApp.Application.Services.UserSearchServices;
+﻿namespace DiscordApp.Application.Services.UserSearchServices;
 
 public record ParsedUserSearchQuery(
     bool HasTag,
@@ -26,9 +22,7 @@ public static class UserSearchQueryValidator
         if (hashCount > 1)
         {
             return Result<ParsedUserSearchQuery>.BadRequest(
-                new Error(
-                    ErrorCodes.BadRequest,
-                    "Invalid search query. Query can contain at most one '#' character."));
+                UserSearchErrors.InvalidQuery);
         }
 
         if (hashCount == 1)

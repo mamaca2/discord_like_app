@@ -1,0 +1,281 @@
+.serverBar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 12px 8px;
+  box-sizing: border-box;
+  background: #2b2d31;
+  color: white;
+}
+
+/* Invite People */
+
+.inviteFriendsButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #404249;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inviteFriendsButton:hover {
+  background: #4a4c54;
+}
+
+.inviteFriendsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #232428;
+  border: 1px solid #404249;
+  border-radius: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.invitePanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.closeInviteButton {
+  background: transparent;
+  border: none;
+  color: #949ba4;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.closeInviteButton:hover {
+  color: white;
+}
+
+.friendRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.friendAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  background: #5865f2;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.friendName {
+  flex: 1;
+  min-width: 0;
+  color: #dbdee1;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inviteButton {
+  padding: 6px 10px;
+  background: #5865f2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.inviteButton:hover:not(:disabled) {
+  background: #4752c4;
+}
+
+.inviteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.noFriends {
+  color: #949ba4;
+  font-size: 13px;
+  text-align: center;
+}
+
+.inviteError {
+  margin: 0;
+  color: #f38b8b;
+  font-size: 12px;
+}
+
+/* Chats */
+
+.chatsHeader {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 8px;
+}
+
+.toggleChats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  padding: 8px 2px;
+  background: transparent;
+  border: none;
+  color: #b5bac1;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.toggleChats:hover {
+  color: white;
+}
+
+.addChatButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  color: #b5bac1;
+  font-size: 23px;
+  cursor: pointer;
+}
+
+.addChatButton:hover {
+  background: #404249;
+  color: white;
+}
+
+.chatList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.chatButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #949ba4;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.chatButton:hover {
+  background: #404249;
+  color: white;
+}
+
+.chatButton:focus-visible {
+  outline: 2px solid #5865f2;
+}
+
+.hash {
+  color: #949ba4;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.emptyChats {
+  padding: 12px;
+  color: #949ba4;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Create Chat Popup */
+
+.createChatPopup {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 220px;
+  padding: 12px;
+  box-sizing: border-box;
+  background: #232428;
+  border: 1px solid #404249;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.createChatPopup input {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  background: #1e1f22;
+  color: white;
+  border: 1px solid #5865f2;
+  border-radius: 6px;
+  outline: none;
+  font-size: 14px;
+}
+
+.createChatPopup input:focus {
+  border-color: #7983f5;
+}
+
+.createChatPopup input::placeholder {
+  color: #949ba4;
+}
+
+.createChatPopup button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px;
+  background: #5865f2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.createChatPopup button:hover:not(:disabled) {
+  background: #4752c4;
+}
+
+.createChatPopup button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

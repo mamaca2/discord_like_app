@@ -2,25 +2,38 @@ import { useState, useEffect } from "react";
 
 import { ServerList } from "./ServerList";
 import FriendsBar from "./FriendsBar";
-import ChatArea from "./ChatArea";
+import DirectMessageArea from "./chatAreas/DirectMessageArea";
 import { SearchBar } from "./SearchBar";
+import ServerBar from "./ServerBar";
 
-import { getUserServers, createServer, type ServerDto } from "../../services/serverService";
-import { getUserFriends, type FriendDto } from "../../services/friendsService";
+import {
+  getUserServers,
+  createServer,
+  type ServerDto,
+  type ServerChatDto,
+  getServerChats,
+  createServerChat,
+  inviteFriendToServer
+} from "../services/serverService";
+
+import { getUserFriends, type FriendDto } from "../services/friendsService";
+
 import {
   acceptFriendRequest,
   declineFriendRequest,
   getIncomingFriendRequests,
   getOutgoingFriendRequests,
   type FriendRequestDto
-} from "../../services/friendRequestService";
+} from "../services/friendRequestService";
 
 import styles from "../css/MainPage.module.css";
 import middleStyles from "../css/MiddleBar.module.css";
+
 import { FriendRequests } from "./FriendRequests";
 import Settings from "./Settings";
 
 import * as signalR from "@microsoft/signalr";
+import ServerChatArea from "./chatAreas/ServerChatArea";
 
 interface MainPageProps {
   token: string;
@@ -31,6 +44,7 @@ type ActiveBar = "friends" | "server" | "search";
 
 type ActiveContent =
   | { type: "chat"; friendId: string }
+  | { type: "serverChat"; chat: ServerChatDto }
   | { type: "friendRequests" }
   | { type: "settings" }
   | { type: "empty" };
@@ -55,13 +69,16 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
   const [outgoingFriendRequests, setOutgoingFriendRequests] =
     useState<FriendRequestDto[]>([]);
 
+  const [chatsByServer, setChatsByServer] = useState<
+    Map<number, ServerChatDto[]>
+  >(new Map());
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const [connection, setConnection] =
     useState<signalR.HubConnection | null>(null);
 
-  //fetching data about our friends and friend requests
   useEffect(() => {
     let isMounted = true;
 
@@ -88,6 +105,18 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
           setIncomingFriendRequests(incoming);
           setOutgoingFriendRequests(outgoing);
         }
+
+        const results = await Promise.all(
+          userServers.map(async server => {
+            const chats = await getServerChats(token, server.id);
+            return [server.id, chats] as const;
+          })
+        );
+
+        if (isMounted) {
+          setChatsByServer(new Map(results));
+        }
+
       } catch (error) {
         if (isMounted) {
           setError(
@@ -108,7 +137,6 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
     };
   }, [token]);
 
-  //Connecting with singalR
   useEffect(() => {
     let cancelled = false;
 
@@ -167,6 +195,10 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
     setActiveContent({ type: "settings" });
   };
 
+  const handleSelectChat = (chat: ServerChatDto) => {
+    setActiveContent({ type: "serverChat", chat });
+  };
+
   const appendOutgoingFriendRequests = (request: FriendRequestDto) => {
     setOutgoingFriendRequests(prev => [...prev, request]);
   };
@@ -223,6 +255,27 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
     });
   };
 
+  const handleAddChat = async (name: string) => {
+    if (activeServerId === null) return;
+
+    const serverId = activeServerId;
+
+    const newChat = await createServerChat(token, serverId, name);
+
+    setChatsByServer(prev => {
+      const updated = new Map(prev);
+      const chats = updated.get(serverId) ?? [];
+
+      updated.set(serverId, [...chats, newChat]);
+
+      return updated;
+    });
+  };
+  const handleInviteFriend = async (friendId: string) => {
+    if (activeServerId === null) return;
+
+    await inviteFriendToServer(token, activeServerId, friendId);
+  };
 
   if (isLoading) {
     return <div className={styles.container}>Loading...</div>;
@@ -272,6 +325,17 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
             onCancelRequest={handleCancelRequest}
           />
         )}
+
+        {activeBar === "server" && activeServerId !== null && (
+          <ServerBar
+            key={activeServerId}
+            chats={chatsByServer.get(activeServerId) ?? []}
+            friends={friends}
+            onAddChat={handleAddChat}
+            onSelectChat={handleSelectChat}
+            onInviteFriend={handleInviteFriend}
+          />
+        )}
       </aside>
 
       {activeContent.type === "friendRequests" && (
@@ -288,13 +352,21 @@ export default function MainPage({ token, onLogout }: MainPageProps) {
       )}
 
       {activeContent.type === "chat" && (
-        <ChatArea
+        <DirectMessageArea
           key={activeContent.friendId}
           friendId={activeContent.friendId}
           token={token}
           connection={connection}
           onSendMessage={handleSendMessage}
           onProfileClicked={handleSelectFriend}
+        />
+      )}
+
+      {activeContent.type === "serverChat" && (
+        <ServerChatArea
+          key={activeContent.chat.id}
+          chat={activeContent.chat}
+          token={token}
         />
       )}
     </div>

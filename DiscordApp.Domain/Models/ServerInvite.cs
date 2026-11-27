@@ -1,5 +1,3 @@
-using DiscordApp.Domain.Models;
-
 namespace DiscordApp.Domain.Models;
 
 public class ServerInvite
@@ -12,6 +10,8 @@ public class ServerInvite
 
     public string CreatorId { get; set; } = string.Empty;
     public User? Creator { get; set; }
+
+    public string? ReceiverId { get; set; }
 
     public DateTime CreatedAt { get; set; }
     public DateTime? ExpiresAt { get; set; }

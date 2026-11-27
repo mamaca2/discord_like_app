@@ -22,37 +22,6 @@ namespace DiscordApp.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("DiscordApp.Domain.Models.ChatMessage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SenderId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ServerChatId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SenderId");
-
-                    b.HasIndex("ServerChatId");
-
-                    b.ToTable("ChatMessages");
-                });
-
             modelBuilder.Entity("DiscordApp.Domain.Models.DirectMessage", b =>
                 {
                     b.Property<int>("Id")
@@ -172,6 +141,37 @@ namespace DiscordApp.Infrastructure.Migrations
                     b.ToTable("ServerChats");
                 });
 
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ServerChatId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("ServerChatId");
+
+                    b.ToTable("ServerChatMessages");
+                });
+
             modelBuilder.Entity("DiscordApp.Domain.Models.ServerInfo", b =>
                 {
                     b.Property<int>("Id")
@@ -223,6 +223,9 @@ namespace DiscordApp.Infrastructure.Migrations
 
                     b.Property<int>("MaxUses")
                         .HasColumnType("integer");
+
+                    b.Property<string>("ReceiverId")
+                        .HasColumnType("text");
 
                     b.Property<int>("ServerId")
                         .HasColumnType("integer");
@@ -468,25 +471,6 @@ namespace DiscordApp.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DiscordApp.Domain.Models.ChatMessage", b =>
-                {
-                    b.HasOne("DiscordApp.Domain.Models.User", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DiscordApp.Domain.Models.ServerChat", "ServerChat")
-                        .WithMany("ChatMessages")
-                        .HasForeignKey("ServerChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Sender");
-
-                    b.Navigation("ServerChat");
-                });
-
             modelBuilder.Entity("DiscordApp.Domain.Models.DirectMessage", b =>
                 {
                     b.HasOne("DiscordApp.Domain.Models.User", "Receiver")
@@ -534,6 +518,25 @@ namespace DiscordApp.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Server");
+                });
+
+            modelBuilder.Entity("DiscordApp.Domain.Models.ServerChatMessage", b =>
+                {
+                    b.HasOne("DiscordApp.Domain.Models.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DiscordApp.Domain.Models.ServerChat", "ServerChat")
+                        .WithMany("ChatMessages")
+                        .HasForeignKey("ServerChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sender");
+
+                    b.Navigation("ServerChat");
                 });
 
             modelBuilder.Entity("DiscordApp.Domain.Models.ServerInvite", b =>

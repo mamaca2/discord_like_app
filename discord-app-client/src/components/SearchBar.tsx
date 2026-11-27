@@ -4,14 +4,14 @@ import styles from "../css/SearchBar.module.css";
 import {
   searchUsers,
   type UserSearchDto
-} from "../../services/userSearchService";
+} from "../services/userSearchService";
 
 import {
   sendFriendRequest,
   type FriendRequestDto
-} from "../../services/friendRequestService";
+} from "../services/friendRequestService";
 
-import type { FriendDto } from "../../services/friendsService";
+import type { FriendDto } from "../services/friendsService";
 
 interface SearchBarProps {
   token: string;

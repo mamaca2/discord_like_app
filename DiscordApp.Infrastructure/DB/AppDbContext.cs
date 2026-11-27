@@ -22,7 +22,7 @@ public class AppDbContext : IdentityDbContext<User>, IAppDbContext
     public DbSet<DirectMessage> DirectMessages { get; set; }
 
     public DbSet<ServerChat> ServerChats { get; set; }
-    public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<ServerChatMessage> ServerChatMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -41,12 +41,12 @@ public class AppDbContext : IdentityDbContext<User>, IAppDbContext
             .WithMany(s => s.ServerChats)
             .HasForeignKey(sc => sc.ServerId);
 
-        builder.Entity<ChatMessage>()
+        builder.Entity<ServerChatMessage>()
             .HasOne(cm => cm.ServerChat)
             .WithMany(sc => sc.ChatMessages)
             .HasForeignKey(cm => cm.ServerChatId);
 
-        builder.Entity<ChatMessage>()
+        builder.Entity<ServerChatMessage>()
             .HasOne(cm => cm.Sender)
             .WithMany()
             .HasForeignKey(cm => cm.SenderId)

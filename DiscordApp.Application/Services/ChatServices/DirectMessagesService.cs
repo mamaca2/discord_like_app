@@ -1,6 +1,5 @@
 using DiscordApp.Application.DTOs.ChatDTOs;
 using DiscordApp.Application.Interfaces;
-using DiscordApp.Domain.constants;
 using DiscordApp.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +7,10 @@ using Microsoft.EntityFrameworkCore;
 namespace DiscordApp.Application.Services.ChatServices;
 
 public class DirectMessagesService(
-    IAppDbContext dbContext, 
+    IAppDbContext dbContext,
     UserManager<User> userManager
-    ) : IDirectMessageService
+) : IDirectMessageService
 {
-    
     public async Task<Result<DirectMessageResponseDto>> SendMessageAsync(
         string senderId,
         DirectMessageDTO directMessageDto)
@@ -20,8 +18,7 @@ public class DirectMessagesService(
         if (string.IsNullOrWhiteSpace(directMessageDto.Content))
         {
             return Result<DirectMessageResponseDto>.BadRequest(
-                new Error(ErrorCodes.BadRequest, "Message cannot be empty.")
-            );
+                DirectMessageErrors.EmptyMessage);
         }
 
         var senderExists = await dbContext.Users
@@ -30,8 +27,7 @@ public class DirectMessagesService(
         if (!senderExists)
         {
             return Result<DirectMessageResponseDto>.NotFound(
-                new Error(ErrorCodes.NotFound, "Sender not found.")
-            );
+                DirectMessageErrors.SenderNotFound);
         }
 
         var receiverExists = await dbContext.Users
@@ -40,8 +36,7 @@ public class DirectMessagesService(
         if (!receiverExists)
         {
             return Result<DirectMessageResponseDto>.NotFound(
-                new Error(ErrorCodes.NotFound, "Receiver not found.")
-            );
+                DirectMessageErrors.ReceiverNotFound);
         }
 
         var message = new DirectMessage
@@ -67,6 +62,7 @@ public class DirectMessagesService(
             }
         );
     }
+
     public async Task<Result<List<DirectMessageResponseDto>>> GetConversationAsync(
         string senderId,
         string receiverId)
@@ -76,8 +72,7 @@ public class DirectMessagesService(
         if (senderUser is null)
         {
             return Result<List<DirectMessageResponseDto>>.NotFound(
-                new Error(ErrorCodes.NotFound, "Sender not found.")
-            );
+                DirectMessageErrors.SenderNotFound);
         }
 
         var receiverUser = await userManager.FindByIdAsync(receiverId);
@@ -85,8 +80,7 @@ public class DirectMessagesService(
         if (receiverUser is null)
         {
             return Result<List<DirectMessageResponseDto>>.NotFound(
-                new Error(ErrorCodes.NotFound, "Receiver not found.")
-            );
+                DirectMessageErrors.ReceiverNotFound);
         }
 
         var messages = await dbContext.DirectMessages
