@@ -163,7 +163,8 @@ builder.Services
                 var path = context.HttpContext.Request.Path;
 
                 if (!string.IsNullOrEmpty(accessToken) &&
-                    path.StartsWithSegments("/hubs/direct-messages"))
+                    (path.StartsWithSegments("/hubs/direct-messages") ||
+                     path.StartsWithSegments("/hubs/server-chats")))
                 {
                     context.Token = accessToken;
                 }
@@ -294,5 +295,6 @@ app.UseStaticFiles();
 app.MapControllers();
 
 app.MapHub<DirectMessageHub>("/hubs/direct-messages");
+app.MapHub<ServerHub>("/hubs/server-chats");
 
 app.Run();

@@ -5,6 +5,7 @@ export interface MessageDto {
   content: string;
   isMine: boolean;
   sentAt?: string | Date;
+  inviteCode?: string | null;
 }
 
 interface MessageListProps {
@@ -30,9 +31,44 @@ export default function MessageList({
           )}
 
           <div className={styles.messageStack}>
-            <div className={styles.bubble}>
-              {message.content}
-            </div>
+            {message.inviteCode ? (
+              <div className={styles.inviteCard}>
+                <h3>Server Invitation</h3>
+
+                <p>You've been invited to join a server!</p>
+
+                <a
+                  className={styles.inviteLink}
+                  href={`/invite/${encodeURIComponent(message.inviteCode)}`}
+                >
+                  {`${window.location.origin}/invite/${message.inviteCode}`}
+                </a>
+
+                {message.isMine ? (
+                  <button
+                    type="button"
+                    className={styles.joinButton}
+                    onClick={() => {
+                      const url = `${window.location.origin}/invite/${encodeURIComponent(message.inviteCode!)}`;
+                      void navigator.clipboard.writeText(url);
+                    }}
+                  >
+                    Copy Invite Link
+                  </button>
+                ) : (
+                  <a
+                    className={styles.joinButton}
+                    href={`/invite/${encodeURIComponent(message.inviteCode)}`}
+                  >
+                    Join Server
+                  </a>
+                )}
+              </div>
+            ) : (
+              <div className={styles.bubble}>
+                {message.content}
+              </div>
+            )}
 
             {message.sentAt && (
               <span className={styles.timestamp}>

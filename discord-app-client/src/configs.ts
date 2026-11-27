@@ -1,6 +1,6 @@
 export const CONFIGS = {
   API_BASE_URL: import.meta.env.VITE_API_BASE_URL || "/api",
-  
+
   ENDPOINTS: {
     AUTH: {
       LOGIN: '/auth/login',
@@ -10,14 +10,18 @@ export const CONFIGS = {
     },
     SERVERS: {
       USER_SERVERS: '/servers/user-servers',
-      JOIN: (code: string) => `/servers/join/${code}`,
       CREATE: '/servers',
-      CREATE_CHAT: (serverId: number) => `/servers/${serverId}/create-chat`,
-      GET_CHATS: (serverId: number) => `/servers/${serverId}/get-chats`,
+      CREATE_CHAT: (serverId: number) =>
+        `/servers/${serverId}/create-chat`,
+      GET_CHATS: (serverId: number) =>
+        `/servers/${serverId}/get-chats`,
       GET_CHAT_MESSAGES: (serverId: number, chatId: number) =>
         `/servers/${serverId}/chats/${chatId}/messages`,
       INVITE: (serverId: number, friendId: string) =>
-        `/servers/${serverId}/invite-friend/${encodeURIComponent(friendId)}`
+        `/server-invite/${serverId}/send/${encodeURIComponent(friendId)}`,
+
+      JOIN: (code: string) =>
+        `/server-invite/join/${encodeURIComponent(code)}`,
     },
     FRIENDS: {
       BASE: '/friends'
@@ -35,7 +39,6 @@ export const CONFIGS = {
       GET_CONVERSATION: (friendId: string) =>
         `/direct-messages/get-conversation/${friendId}`,
     },
-
     SEARCH: '/users/search',
   },
 

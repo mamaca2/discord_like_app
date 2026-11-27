@@ -45,11 +45,16 @@ namespace DiscordApp.Infrastructure.Migrations
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("ServerInviteId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ReceiverId");
 
                     b.HasIndex("SenderId");
+
+                    b.HasIndex("ServerInviteId");
 
                     b.ToTable("DirectMessages");
                 });
@@ -485,9 +490,15 @@ namespace DiscordApp.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("DiscordApp.Domain.Models.ServerInvite", "ServerInvite")
+                        .WithMany()
+                        .HasForeignKey("ServerInviteId");
+
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
+
+                    b.Navigation("ServerInvite");
                 });
 
             modelBuilder.Entity("DiscordApp.Domain.Models.FriendRequest", b =>

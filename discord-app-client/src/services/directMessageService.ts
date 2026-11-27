@@ -1,29 +1,33 @@
 import { CONFIGS } from "../configs";
 
-export interface DirectMessageResponseDto{
-    id: number,
-    senderId: string,
-    receiverId: string,
-    content: string,
-    sentAt: Date
+export interface DirectMessageResponseDto {
+    id: number;
+    senderId: string;
+    receiverId: string;
+    content: string;
+    sentAt: Date;
+    inviteCode?: string | null;
 }
 
 export async function getConversation(
     token: string,
     friendId: string
-): Promise<DirectMessageResponseDto[]>{
-  const response = await fetch(`${CONFIGS.API_BASE_URL}${CONFIGS.ENDPOINTS.DIRECT_MESSAGES.GET_CONVERSATION(friendId)}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
+): Promise<DirectMessageResponseDto[]> {
+    const response = await fetch(
+        `${CONFIGS.API_BASE_URL}${CONFIGS.ENDPOINTS.DIRECT_MESSAGES.GET_CONVERSATION(friendId)}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        }
+    );
 
-  if(!response.ok){
-    const errorText = await response.text();
-    throw new Error(errorText || "Failed to get conversation with friend");
-  }
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to get conversation with friend");
+    }
 
-  return response.json();
+    return response.json();
 }

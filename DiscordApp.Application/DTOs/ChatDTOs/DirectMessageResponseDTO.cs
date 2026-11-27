@@ -6,5 +6,6 @@ public class DirectMessageResponseDto
     public string SenderId { get; set; } = string.Empty;
     public string ReceiverId { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
+    public string? InviteCode { get; set; }
     public DateTime SentAt { get; set; }
 }

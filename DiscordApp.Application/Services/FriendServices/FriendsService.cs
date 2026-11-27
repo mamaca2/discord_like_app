@@ -1,8 +1,6 @@
-﻿
-using DiscordApp.Application.contracts;
+﻿using DiscordApp.Application.contracts;
 using DiscordApp.Application.DTOs.FriendDTOs;
 using DiscordApp.Application.Interfaces;
-using DiscordApp.Domain.Constants;
 using DiscordApp.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 

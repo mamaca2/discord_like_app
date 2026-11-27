@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
+namespace DiscordApp.Api.Hubs;
+
 [Authorize]
-public class ServerChatHub(IAppDbContext dbContext) : Hub
+public class ServerHub(IAppDbContext dbContext) : Hub
 {
     private static string ChatGroup(int chatId) => $"chat-{chatId}";
 
@@ -38,6 +40,21 @@ public class ServerChatHub(IAppDbContext dbContext) : Hub
             Context.ConnectionId,
             ChatGroup(chatId)
         );
+    }
+
+    public async Task JoinServer(int serverId)
+    {
+        var userId = Context.UserIdentifier;
+
+        var isMember = await dbContext.ServerMembers
+            .AnyAsync(m => m.ServerInfoId == serverId && m.UserId == userId);
+
+        if (!isMember)
+            throw new HubException("You are not a member of this server.");
+
+        await Groups.AddToGroupAsync(
+            Context.ConnectionId,
+            $"server-{serverId}");
     }
 
     public async Task SendChatMessage(

@@ -13,8 +13,7 @@ namespace DiscordApp.Api.Controllers;
 [Route("api/servers")]
 [Authorize]
 public class ServersController(
-    IServerService serverService,
-    IServerInviteService serverInviteService
+    IServerService serverService
 ) : BaseApiController
 {
     [HttpPost]

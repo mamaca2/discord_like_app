@@ -1,9 +1,7 @@
-
 using DiscordApp.Application.DTOs.ServerDTOs;
 using DiscordApp.Application.DTOs.ServerDTOs.InviteDTOs;
+using DiscordApp.Application.DTOs.ChatDTOs;
 using DiscordApp.Application.Interfaces;
-using DiscordApp.Application.Results;
-using DiscordApp.Domain.Constants;
 using DiscordApp.Domain.Enums;
 using DiscordApp.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +36,19 @@ public class ServerInviteService(IAppDbContext dbContext) : IServerInviteService
 
         var now = DateTime.UtcNow;
 
+        var existingInvite = await dbContext.ServerInvites
+            .FirstOrDefaultAsync(i =>
+                i.ServerId == serverId &&
+                i.CreatorId == creatorUserId &&
+                i.ReceiverId == null &&
+                (i.ExpiresAt == null || i.ExpiresAt > now) &&
+                (i.MaxUses == 0 || i.Uses < i.MaxUses));
+
+        if (existingInvite != null)
+        {
+            return Result<ServerInviteDto>.Success(existingInvite.ToDto());
+        }
+
         var serverInvite = new ServerInvite
         {
             ServerId = serverId,
@@ -55,6 +66,46 @@ public class ServerInviteService(IAppDbContext dbContext) : IServerInviteService
         await dbContext.SaveChangesAsync();
 
         return Result<ServerInviteDto>.Success(serverInvite.ToDto());
+    }
+
+    public async Task<Result<DirectMessageResponseDto>> CreateInviteAndSendAsync(
+        int serverId,
+        string creatorUserId,
+        string friendId,
+        CreateInviteDto dto)
+    {
+        var result = await CreateInviteAsync(serverId, creatorUserId, dto);
+        if (!result.IsSuccess)
+        {
+            return Result<DirectMessageResponseDto>.Failure(
+                result.Errors![0]);
+        }
+
+        var invite = await dbContext.ServerInvites
+            .FirstAsync(i => i.Code == result.Value!.Code);
+
+        var message = new DirectMessage
+        {
+            SenderId = creatorUserId,
+            ReceiverId = friendId,
+            Content = string.Empty,
+            SentAt = DateTime.UtcNow,
+            ServerInviteId = invite.Id
+        };
+
+        dbContext.DirectMessages.Add(message);
+        await dbContext.SaveChangesAsync();
+
+        return Result<DirectMessageResponseDto>.Success(
+            new DirectMessageResponseDto
+            {
+                Id = message.Id,
+                SenderId = message.SenderId,
+                ReceiverId = message.ReceiverId,
+                Content = message.Content,
+                SentAt = message.SentAt,
+                InviteCode = invite.Code
+            });
     }
 
     public async Task<Result<ServerDto>> AcceptInviteAsync(

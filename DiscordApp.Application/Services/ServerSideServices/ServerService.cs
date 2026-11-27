@@ -252,6 +252,46 @@ public class ServerService(
         return Result<List<ServerChatMessageDto>>.Success(messages);
     }
 
+
+    public async Task<Result<List<ServerMemberDto>>> GetServerMembersAsync(
+        int serverId,
+        string userId)
+    {
+        var isMember = await dbContext.ServerMembers
+            .AnyAsync(m =>
+                m.ServerInfoId == serverId &&
+                m.UserId == userId);
+
+        if (!isMember)
+            return Result<List<ServerMemberDto>>.BadRequest(
+                ServerErrors.NotMember);
+
+        var members = await dbContext.ServerMembers
+            .AsNoTracking()
+            .Where(m => m.ServerInfoId == serverId)
+            .Join(dbContext.Users,
+                m => m.UserId,
+                u => u.Id,
+                (m, u) => new
+                {
+                    u.Id,
+                    u.DisplayName,
+                    u.UserName,
+                    u.Image,
+                    m.Role
+                })
+            .ToListAsync();
+
+        return Result<List<ServerMemberDto>>.Success(
+            members.Select(m => new ServerMemberDto
+            {
+                Id = m.Id,
+                UserName = m.DisplayName ?? m.UserName ?? string.Empty,
+                Image = m.Image,
+                Role = m.Role.ToString()
+            }).ToList());
+    }
+
     public Task<Result<ServerDto>> UpdateServerAsync(string serverId, string currentUserId, UpdateServerDto dto)
     {
         throw new NotImplementedException();

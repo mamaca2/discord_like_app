@@ -160,6 +160,31 @@ export async function inviteFriendToServer(
     {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        durationHours: 168,
+        maxUses: 0,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Invite failed (${response.status})`);
+  }
+}
+
+export async function joinServer(
+  token: string,
+  code: string
+): Promise<void> {
+  const response = await fetch(
+    `${CONFIGS.API_BASE_URL}${CONFIGS.ENDPOINTS.SERVERS.JOIN(code)}`,
+    {
+      method: "POST",
+      headers: {
         Authorization: `Bearer ${token}`
       }
     }
@@ -167,6 +192,6 @@ export async function inviteFriendToServer(
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || `Invite failed (${response.status})`);
+    throw new Error(errorText || `Failed to join server (${response.status})`);
   }
 }

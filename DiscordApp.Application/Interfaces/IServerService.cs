@@ -1,6 +1,5 @@
 using DiscordApp.Application.DTOs.ServerDTOs;
 using DiscordApp.Application.DTOs.ServerDTOs.ChatDTOs;
-using DiscordApp.Domain.Models;
 
 namespace DiscordApp.Application.Interfaces;
 
@@ -18,5 +17,7 @@ public interface IServerService
         string userId,
         int page = 1,
         int pageSize = 20);
-    
+    Task<Result<List<ServerMemberDto>>> GetServerMembersAsync(
+        int serverId,
+        string userId);
 }

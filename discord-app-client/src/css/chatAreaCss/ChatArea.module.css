@@ -231,3 +231,73 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+.inviteCard {
+  background: #2b2d31;
+  border: 1px solid #404249;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px;
+  max-width: 380px;
+}
+
+.inviteHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.inviteIcon {
+  width: 42px;
+  height: 42px;
+  background: #5865f2;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.inviteHeader h3 {
+  color: #ffffff;
+  font-size: 15px;
+  margin: 0 0 4px;
+}
+
+.inviteHeader p {
+  color: #b5bac1;
+  font-size: 13px;
+  margin: 0;
+}
+
+.inviteLink {
+  display: block;
+  color: #8ea1ff;
+  font-size: 13px;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  margin-bottom: 14px;
+}
+
+.inviteLink:hover {
+  text-decoration: underline;
+}
+
+.joinServerButton {
+  display: block;
+  background: #248046;
+  color: #ffffff;
+  text-align: center;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.joinServerButton:hover {
+  background: #1a6334;
+}

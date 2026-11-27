@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import type { HubConnection } from "@microsoft/signalr";
 
@@ -167,7 +166,8 @@ export default function DirectMessageArea({
               id: message.id,
               content: message.content,
               isMine: message.senderId !== friendId,
-              sentAt: message.sentAt
+              sentAt: message.sentAt,
+              inviteCode: message.inviteCode
             }))}
           />
         )}

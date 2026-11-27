@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using DiscordApp.Domain.Common;
-
-namespace DiscordApp.Application.Results;
+﻿namespace DiscordApp.Application.Results;
 
 public enum ResultType
 {

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import type { ServerChatDto } from "../services/serverService";
 import type { FriendDto } from "../services/friendsService";

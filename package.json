@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@microsoft/signalr": "^11.0.0"
+    "@microsoft/signalr": "^11.0.0",
+    "react-router-dom": "^7.18.7"
   }
 }
